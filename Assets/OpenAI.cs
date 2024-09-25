@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class verysimpletext : MonoBehaviour
+public class OpenAI : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -13,6 +13,6 @@ public class verysimpletext : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // my name is joshua and I love men
+        
     }
 }
