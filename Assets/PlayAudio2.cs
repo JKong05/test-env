@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlayAudio : MonoBehaviour
+public class PlayAudio2 : MonoBehaviour
 {
     private bool _isAudioPlaying = false;
 
