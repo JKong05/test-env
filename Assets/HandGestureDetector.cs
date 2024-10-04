@@ -34,8 +34,9 @@
 
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
 
-public class HandTracking : MonoBehaviour
+public class HandGestureDetector : MonoBehaviour
 {
     private void Update()
     {
@@ -44,8 +45,8 @@ public class HandTracking : MonoBehaviour
         Vector3 rightHandPosition = GetHandPosition(XRNode.RightHand);
 
         // Log hand positions to the console
-        // Debug.Log("Left Hand Position: " + leftHandPosition);
-        // Debug.Log("Right Hand Position: " + rightHandPosition);
+        Debug.Log("Left Hand Position: " + leftHandPosition);
+        Debug.Log("Right Hand Position: " + rightHandPosition);
     }
 
     private Vector3 GetHandPosition(XRNode hand)
@@ -55,8 +56,11 @@ public class HandTracking : MonoBehaviour
         if (device.isValid)
         {
             // Try to get the position of the hand
-            if (device.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position))
+            if (device.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position) &&
+                device.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation))
             {
+                // If you need the rotation, you can use it here
+                // For hand tracking, it might be helpful to apply the rotation to position if needed
                 return position;
             }
         }
