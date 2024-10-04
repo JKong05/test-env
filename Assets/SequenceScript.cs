@@ -23,6 +23,8 @@ public class SequenceScript : MonoBehaviour
     private List<float> fogChildOriginalSizes = new List<float>();
     public float fogChildScaleFactor;
 
+    public List<GameObject> environments;
+
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +43,9 @@ public class SequenceScript : MonoBehaviour
 
         // Set the initial radius
         fogParent.transform.localScale = fogLargeScale;
+
+        environments[0].SetActive(true);
+        environments[1].SetActive(false);
     }
 
     // Update is called once per frame
@@ -66,6 +71,14 @@ public class SequenceScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
             ShrinkFog();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            StartCoroutine(EnableEnvironment(1));
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            StartCoroutine(EnableEnvironment(2));
         }
 
         if (updateFogScale)
@@ -168,6 +181,25 @@ public class SequenceScript : MonoBehaviour
         fogElapsedTime = 0f;
         updateFogScale = true;
         Debug.Log("shrink");
+    }
+
+    IEnumerator EnableEnvironment(int envNum){
+        if(envNum == 1){
+            ShrinkFog();
+            yield return new WaitForSeconds(5.0f);
+            environments[0].SetActive(true);
+            environments[1].SetActive(false);
+            ExpandFog();
+            Debug.Log("environment 1");
+        }
+        else if(envNum == 2){
+            ShrinkFog();
+            yield return new WaitForSeconds(5.0f);
+            environments[0].SetActive(false);
+            environments[1].SetActive(true);
+            ExpandFog();
+            Debug.Log("environment 2");
+        }
     }
 
 }
