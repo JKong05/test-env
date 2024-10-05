@@ -1212,6 +1212,7 @@ MonoBehaviour:
   environments:
   - {fileID: 1281021319}
   - {fileID: 1820416001}
+  soundPlayer: {fileID: 239981171}
 --- !u!4 &58485016
 Transform:
   m_ObjectHideFlags: 0

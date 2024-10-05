@@ -24,6 +24,7 @@ public class SequenceScript : MonoBehaviour
     public float fogChildScaleFactor;
 
     public List<GameObject> environments;
+    public AudioSource soundPlayer;
 
 
     // Start is called before the first frame update
@@ -53,30 +54,21 @@ public class SequenceScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            StartVideo(0);
+            TestAudioVideo();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            PauseVideo();
+            PauseTestAudioVideo();
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            ResumeVideo();
+            ResumeTestAudioVideo();
         }
-
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            ExpandFog();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            ShrinkFog();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha8))
+        if (Input.GetKeyDown(KeyCode.Alpha9))
         {
             StartCoroutine(EnableEnvironment(1));
         }
-        if (Input.GetKeyDown(KeyCode.Alpha9))
+        if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             StartCoroutine(EnableEnvironment(2));
         }
@@ -137,6 +129,21 @@ public class SequenceScript : MonoBehaviour
 
     }
 
+    void TestAudioVideo(){
+        StartVideo(0);
+        playThisAudio();
+    }
+
+    void ResumeTestAudioVideo(){
+        PauseVideo();
+        playThisAudio();
+    }
+
+    void PauseTestAudioVideo(){
+        PauseVideo();
+        pauseThisAudio();
+    }
+
 
     void StartVideo(int index)
     {
@@ -165,6 +172,16 @@ public class SequenceScript : MonoBehaviour
     {
         //Pause current video
         videoPlayer.Play();
+    }
+
+    void playThisAudio()
+    {
+        soundPlayer.Play();
+    }
+
+    void pauseThisAudio()
+    {
+        soundPlayer.Pause();
     }
 
     void ExpandFog()
