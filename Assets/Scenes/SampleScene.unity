@@ -2786,6 +2786,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 365fd64abc8b5424782af78e7545de79, type: 3}
+--- !u!1 &187190499 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9014170783809206332, guid: 895f6f3c2d334633b5800312285058d2, type: 3}
+  m_PrefabInstance: {fileID: 567395864}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &193279568
 GameObject:
   m_ObjectHideFlags: 0
@@ -22780,6 +22785,7 @@ GameObject:
   - component: {fileID: 1761024914}
   - component: {fileID: 1761024913}
   - component: {fileID: 1761024917}
+  - component: {fileID: 1761024918}
   m_Layer: 0
   m_Name: VideoPlayerCube
   m_TagString: Untagged
@@ -22867,7 +22873,7 @@ Transform:
   m_GameObject: {fileID: 1761024911}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.03, y: 1.4, z: 4}
+  m_LocalPosition: {x: 15, y: 1.4, z: 4}
   m_LocalScale: {x: 1.7777778, y: 1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22909,6 +22915,22 @@ VideoPlayer:
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
+--- !u!114 &1761024918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761024911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b087ad4635cd5c46bd631447e4c53f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 187190499}
+  radius: 4
+  smoothTime: 5
+  angleSpeed: 1
 --- !u!1001 &1761818753
 PrefabInstance:
   m_ObjectHideFlags: 0
