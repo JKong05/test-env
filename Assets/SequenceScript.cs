@@ -8,16 +8,22 @@ using UnityEngine.XR.Hands.Samples.GestureSample;
 
 public class SequenceScript : MonoBehaviour
 {
+    // To keep track of the current function
+    private int currentFunctionIndex = 0;
+    private bool isExecuting = false;
+    private bool thumbsUpReceived = false;
+
     //public variables (able to access within Unity editor)
-    [Header("Video")] 
+    [Header("Video")]
     public VideoPlayer videoPlayer;
     public Material videoMaterial;
     public List<VideoClip> videoClips;
+    private bool isVideoPlaying = false;
 
-    [Header("Audio")] 
+    [Header("Audio")]
     public AudioSource soundPlayer;
 
-    [Header("Fog")] 
+    [Header("Fog")]
     public GameObject fogParent;
     private bool updateFogScale = false;
     private float fogElapsedTime = 0f;
@@ -29,11 +35,12 @@ public class SequenceScript : MonoBehaviour
     private List<float> fogChildOriginalSizes = new List<float>();
     public float fogChildScaleFactor;
 
-    [Header("Environment")] 
+    [Header("Environment")]
+    public GameObject startEnvironment;
 
     public List<GameObject> environments;
 
-    [Header("Gestures")] 
+    [Header("Gestures")]
     public GameObject rightThumbsUpDetector;
     private StaticHandGesture gestureTracker;
 
@@ -56,8 +63,11 @@ public class SequenceScript : MonoBehaviour
         // Set the initial radius
         fogParent.transform.localScale = fogLargeScale;
 
-        environments[0].SetActive(true);
-        environments[1].SetActive(false);
+        startEnvironment.SetActive(true);
+        for (int i = 0; i < environments.Count; i++)
+        {
+            environments[i].SetActive(false);
+        }
 
         //setting gesture detectors
         gestureTracker = rightThumbsUpDetector.GetComponent<StaticHandGesture>();
@@ -75,36 +85,38 @@ public class SequenceScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            TestAudioVideo();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            PauseTestAudioVideo();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            ResumeTestAudioVideo();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            StartCoroutine(EnableEnvironment(1));
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            StartCoroutine(EnableEnvironment(2));
-        }
+        // if (Input.GetKeyDown(KeyCode.Alpha1))
+        // {
+        //     TestAudioVideo();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha2))
+        // {
+        //     PauseTestAudioVideo();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha3))
+        // {
+        //     ResumeTestAudioVideo();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha9))
+        // {
+        //     StartCoroutine(EnableEnvironment(0));
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha0))
+        // {
+        //     StartCoroutine(EnableEnvironment(1));
+        // }
 
         if (updateFogScale)
         {
             fogElapsedTime += Time.deltaTime;
             //converting to normalized time (0 to 1)
             float t;
-            if(fogNewScale == fogLargeScale){
-                t = Mathf.Clamp01(fogElapsedTime / (fogLerpDuration*80));
+            if (fogNewScale == fogLargeScale)
+            {
+                t = Mathf.Clamp01(fogElapsedTime / (fogLerpDuration * 80));
             }
-            else{
+            else
+            {
                 t = Mathf.Clamp01(fogElapsedTime / fogLerpDuration);
             }
             fogParent.transform.localScale = Vector3.Lerp(fogParent.transform.localScale, fogNewScale, t);
@@ -124,7 +136,7 @@ public class SequenceScript : MonoBehaviour
             {
                 // Invert the parent's scale for the child
                 child.localScale = new Vector3(
-                    originalSize / (parentScale.x / fogLargeScale.x) *  Mathf.Lerp(1.0f, fogChildScaleFactor, 6 - parentScale.x / fogLargeScale.x),
+                    originalSize / (parentScale.x / fogLargeScale.x) * Mathf.Lerp(1.0f, fogChildScaleFactor, 6 - parentScale.x / fogLargeScale.x),
                     originalSize / (parentScale.y / fogLargeScale.y) * Mathf.Lerp(1.0f, fogChildScaleFactor, 6 - parentScale.y / fogLargeScale.y),
                     originalSize / (parentScale.z / fogLargeScale.z) * Mathf.Lerp(1.0f, fogChildScaleFactor, 6 - parentScale.z / fogLargeScale.z)
                 );
@@ -132,37 +144,108 @@ public class SequenceScript : MonoBehaviour
         }
     }
 
-    void ProgramStarting()
+    private IEnumerator ExecuteCurrentFunction()
     {
+        isExecuting = true; // Set flag to true, indicating the coroutine is running
 
+        switch (currentFunctionIndex)
+        {
+            case 0:
+                yield return StartCoroutine(ProgramStarting());
+                break;
+            case 1:
+                yield return StartCoroutine(Introduction());
+                break;
+            case 2:
+                for (int i = 0; i < 6; i++)
+                {
+                    yield return StartCoroutine(ShowStory(i));
+                    yield return StartCoroutine(WaitForThumbsUpToStartMic());
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(WaitForThumbsUpToEndMic());
+                    yield return StartCoroutine(MicEnd());
+                }
+                break;
+            case 3:
+                yield return StartCoroutine(ProgramEnding());
+                break;
+            default:
+                Debug.Log("All functions executed.");
+                currentFunctionIndex = 0; // Reset to start over
+                yield break; // Exit coroutine
+        }
+
+        // Move to the next function
+        currentFunctionIndex++;
+
+        isExecuting = false; // Set flag back to false, indicating the coroutine has finished
     }
 
-    void Introduction()
+    private IEnumerator ProgramStarting()
     {
-
+        Debug.Log("Program Starting...");
+        yield return new WaitForSeconds(2f); // Simulate some operation
     }
 
-    void ShowStory()
+    private IEnumerator Introduction()
     {
-
+        Debug.Log("Introduction...");
+        yield return new WaitForSeconds(2f); // Simulate some operation
     }
 
-    void ProgramEnding()
+    private IEnumerator ShowStory(int iteration)
     {
-
+        Debug.Log($"Showing Story Part {iteration + 1}...");
+        yield return StartCoroutine(EnableEnvironment(iteration));
+        yield return new WaitForSeconds(2f); // Simulate story duration
     }
 
-    void TestAudioVideo(){
+    private IEnumerator WaitForThumbsUpToStartMic()
+    {
+        thumbsUpReceived = false; // Reset before waiting
+        Debug.Log("Waiting for thumbs up to start the mic...");
+        yield return new WaitUntil(() => thumbsUpReceived); // Wait until thumbs up is received
+    }
+
+    private IEnumerator MicStart()
+    {
+        Debug.Log("Mic Starting...");
+        yield return new WaitForSeconds(1f); // Simulate mic start
+    }
+
+    private IEnumerator WaitForThumbsUpToEndMic()
+    {
+        thumbsUpReceived = false; // Reset before waiting
+        Debug.Log("Waiting for thumbs up to end the mic...");
+        yield return new WaitUntil(() => thumbsUpReceived); // Wait until thumbs up is received
+    }
+
+    private IEnumerator MicEnd()
+    {
+        Debug.Log("Mic Ending...");
+        yield return new WaitForSeconds(1f); // Simulate mic end
+    }
+
+    private IEnumerator ProgramEnding()
+    {
+        Debug.Log("Program Ending...");
+        yield return new WaitForSeconds(2f); // Simulate some operation
+    }
+
+    void TestAudioVideo()
+    {
         StartVideo(0);
         playThisAudio();
     }
 
-    void ResumeTestAudioVideo(){
+    void ResumeTestAudioVideo()
+    {
         PauseVideo();
         playThisAudio();
     }
 
-    void PauseTestAudioVideo(){
+    void PauseTestAudioVideo()
+    {
         PauseVideo();
         pauseThisAudio();
     }
@@ -212,7 +295,6 @@ public class SequenceScript : MonoBehaviour
         fogNewScale = fogLargeScale;
         fogElapsedTime = 0f;
         updateFogScale = true;
-        Debug.Log("expand");
     }
 
     void ShrinkFog()
@@ -220,32 +302,37 @@ public class SequenceScript : MonoBehaviour
         fogNewScale = fogSmallScale;
         fogElapsedTime = 0f;
         updateFogScale = true;
-        Debug.Log("shrink");
     }
 
-    IEnumerator EnableEnvironment(int envNum){
-        if(envNum == 1){
-            ShrinkFog();
-            yield return new WaitForSeconds(5.0f);
-            environments[0].SetActive(true);
-            environments[1].SetActive(false);
-            ExpandFog();
-            Debug.Log("environment 1");
+    IEnumerator EnableEnvironment(int envNum)
+    {
+        ShrinkFog();
+        yield return new WaitForSeconds(2.0f);
+        startEnvironment.SetActive(false);
+        for (int i = 0; i < environments.Count; i++)
+        {
+            if (i == envNum)
+            {
+                environments[i].SetActive(true);
+            }
+            else
+            {
+                environments[i].SetActive(false);
+            }
         }
-        else if(envNum == 2){
-            ShrinkFog();
-            yield return new WaitForSeconds(5.0f);
-            environments[0].SetActive(false);
-            environments[1].SetActive(true);
-            ExpandFog();
-            Debug.Log("environment 2");
-        }
+        ExpandFog();
     }
 
     void OnThumbsUpPerformed()
     {
         // This method will be called when the gesture is detected
-        Debug.Log("Thumbs Up detected in listener!");
+        // Debug.Log("Thumbs Up detected in listener!");
+        if (!isExecuting) // Check if not already executing
+        {
+            StartCoroutine(ExecuteCurrentFunction());
+        }
+        thumbsUpReceived = true;
     }
+
 
 }
