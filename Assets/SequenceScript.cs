@@ -4,14 +4,20 @@ using UnityEngine;
 using UnityEngine.Video;
 using System.Collections;
 using Unity.PlasticSCM.Editor.WebApi;
+using UnityEngine.XR.Hands.Samples.GestureSample;
 
 public class SequenceScript : MonoBehaviour
 {
     //public variables (able to access within Unity editor)
+    [Header("Video")] 
     public VideoPlayer videoPlayer;
     public Material videoMaterial;
     public List<VideoClip> videoClips;
 
+    [Header("Audio")] 
+    public AudioSource soundPlayer;
+
+    [Header("Fog")] 
     public GameObject fogParent;
     private bool updateFogScale = false;
     private float fogElapsedTime = 0f;
@@ -23,8 +29,13 @@ public class SequenceScript : MonoBehaviour
     private List<float> fogChildOriginalSizes = new List<float>();
     public float fogChildScaleFactor;
 
+    [Header("Environment")] 
+
     public List<GameObject> environments;
-    public AudioSource soundPlayer;
+
+    [Header("Gestures")] 
+    public GameObject rightThumbsUpDetector;
+    private StaticHandGesture gestureTracker;
 
 
     // Start is called before the first frame update
@@ -47,6 +58,18 @@ public class SequenceScript : MonoBehaviour
 
         environments[0].SetActive(true);
         environments[1].SetActive(false);
+
+        //setting gesture detectors
+        gestureTracker = rightThumbsUpDetector.GetComponent<StaticHandGesture>();
+        if (gestureTracker != null)
+        {
+            // Subscribe to the gesturePerformed event
+            gestureTracker.gesturePerformed.AddListener(OnThumbsUpPerformed);
+        }
+        else
+        {
+            Debug.LogError("GestureTracker component not found on the assigned GameObject.");
+        }
     }
 
     // Update is called once per frame
@@ -217,6 +240,12 @@ public class SequenceScript : MonoBehaviour
             ExpandFog();
             Debug.Log("environment 2");
         }
+    }
+
+    void OnThumbsUpPerformed()
+    {
+        // This method will be called when the gesture is detected
+        Debug.Log("Thumbs Up detected in listener!");
     }
 
 }

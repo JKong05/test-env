@@ -45,8 +45,8 @@ public class HandGestureDetector : MonoBehaviour
         Vector3 rightHandPosition = GetHandPosition(XRNode.RightHand);
 
         // Log hand positions to the console
-        Debug.Log("Left Hand Position: " + leftHandPosition);
-        Debug.Log("Right Hand Position: " + rightHandPosition);
+        // Debug.Log("Left Hand Position: " + leftHandPosition);
+        // Debug.Log("Right Hand Position: " + rightHandPosition);
     }
 
     private Vector3 GetHandPosition(XRNode hand)
