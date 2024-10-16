@@ -6,6 +6,7 @@ using System.Collections;
 using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine.XR.Hands.Samples.GestureSample;
 using TMPro;
+using System.Drawing;
 
 public class SequenceScript : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class SequenceScript : MonoBehaviour
     [Header("Audio")]
     public AudioSource soundPlayer;
     public List<AudioClip> audioClips;
+    [Header("Mic")]
+    public MicRecorder micRecorderObj;
 
     [Header("Fog")]
     public GameObject fogParent;
@@ -53,6 +56,11 @@ public class SequenceScript : MonoBehaviour
     public int thumbsUpCount = 0;
     public TextMeshProUGUI functionCompleteText;
     public TextMeshProUGUI micActiveText;
+    public TextMeshProUGUI storyTypeText;
+    //0 = audio
+    //1 = visual
+    //2 = audiovisual
+    public List<int> storyType = new List<int> { 0, 1, 2, 0, 1, 2 };
 
     // Start is called before the first frame update
     void Start()
@@ -219,12 +227,16 @@ public class SequenceScript : MonoBehaviour
     {
         Debug.Log($"Showing Story Part {iteration + 1}...");
         yield return StartCoroutine(EnableEnvironment(iteration));
+        yield return new WaitForSeconds(2f);
         float storyDuration = 0f;
-        if(videoClips[iteration] != null){
+        if (videoClips[iteration] != null)
+        {
             storyDuration = (float)videoClips[iteration].length;
             StartVideo(videoClips[iteration]);
-        } else{
-             Debug.Log("No video");
+        }
+        else
+        {
+            Debug.Log("No video");
         }
         // if(audioClips[iteration] != null){
         //     storyDuration = (float)videoClips[iteration].length;
@@ -246,7 +258,8 @@ public class SequenceScript : MonoBehaviour
     {
         Debug.Log("Mic Starting...");
         micActiveText.text = "Mic On";
-        yield return new WaitForSeconds(1f); // Simulate mic start
+        micRecorderObj.GetComponent<MicRecorder>().StartRecording();
+        yield return new WaitForSeconds(0.5f);
     }
 
     private IEnumerator WaitForThumbsUpToEndMic()
@@ -260,7 +273,8 @@ public class SequenceScript : MonoBehaviour
     {
         Debug.Log("Mic Ending...");
         micActiveText.text = "Mic Off";
-        yield return new WaitForSeconds(1f); // Simulate mic end
+        micRecorderObj.GetComponent<MicRecorder>().StopRecording();
+        yield return new WaitForSeconds(0.5f);
     }
 
     private IEnumerator ProgramEnding()
@@ -354,7 +368,21 @@ public class SequenceScript : MonoBehaviour
     IEnumerator EnableEnvironment(int envNum)
     {
         ShrinkFog();
-        yield return new WaitForSeconds(4.0f);
+        yield return new WaitForSeconds(3.0f);
+        videoPlayer.GetComponent<Renderer>().enabled = (storyType[envNum] != 0);
+        videoPlayer.SetDirectAudioMute(0, (storyType[envNum] == 1));
+        if (storyType[envNum] == 0)
+        {
+            storyTypeText.text = "Audio";
+        }
+        else if (storyType[envNum] == 1)
+        {
+            storyTypeText.text = "Video";
+        }
+        else if (storyType[envNum] == 2)
+        {
+            storyTypeText.text = "AudioVisual";
+        }
         startEnvironment.SetActive(false);
         for (int i = 0; i < environments.Count; i++)
         {

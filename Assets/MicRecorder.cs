@@ -12,13 +12,13 @@ public class MicRecorder : MonoBehaviour
     private bool _isRecording = false;
 
     // Reference to the UI button and text
-    public Button startStopButton;
-    public TextMeshProUGUI buttonText;
+    // public Button startStopButton;
+    // public TextMeshProUGUI buttonText;
 
     void Start()
     {
         // Set up the button listener
-        startStopButton.onClick.AddListener(OnButtonClick);
+        // startStopButton.onClick.AddListener(OnButtonClick);
 
         string path = Application.persistentDataPath;
         // Check if the directory exists
@@ -35,19 +35,19 @@ public class MicRecorder : MonoBehaviour
     }
 
     // Handle button click
-    public void OnButtonClick()
-    {
-        if (_isRecording)
-        {
-            StopRecording();
-            buttonText.text = "Start Recording";
-        }
-        else
-        {
-            StartRecording();
-            buttonText.text = "Stop Recording";
-        }
-    }
+    // public void OnButtonClick()
+    // {
+    //     if (_isRecording)
+    //     {
+    //         StopRecording();
+    //         buttonText.text = "Start Recording";
+    //     }
+    //     else
+    //     {
+    //         StartRecording();
+    //         buttonText.text = "Stop Recording";
+    //     }
+    // }
 
     // Start recording
     public void StartRecording()
