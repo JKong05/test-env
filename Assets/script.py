@@ -4,14 +4,14 @@ from pydub import AudioSegment
 from dotenv import load_dotenv
 import os
 
-env_path = Path(__file__).parent / ".env"
+env_path = Path(__file__).parent / ".env" # can delete line 7 and 8
 load_dotenv(dotenv_path=env_path)
 
-client = OpenAI(api_key = os.getenv("API_KEY"))
+client = OpenAI(api_key = os.getenv("API_KEY")) # need to check openAI to get the API key and replace API_KEY with actual one
 
 output_dir = Path(__file__).parent / "audio_chunks"
 output_dir.mkdir(exist_ok=True)
-with open("/Users/justink_5/Desktop/test-env/test-env/story.txt", "r") as file:
+with open("/Users/justink_5/Desktop/test-env/test-env/story.txt", "r") as file: # replace the file directory with your stuff
     content = file.read()
 
 input_text = content
