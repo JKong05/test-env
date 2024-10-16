@@ -5,6 +5,7 @@ using UnityEngine.Video;
 using System.Collections;
 using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine.XR.Hands.Samples.GestureSample;
+using TMPro;
 
 public class SequenceScript : MonoBehaviour
 {
@@ -17,11 +18,13 @@ public class SequenceScript : MonoBehaviour
     [Header("Video")]
     public VideoPlayer videoPlayer;
     public Material videoMaterial;
+    public VideoClip introClip;
     public List<VideoClip> videoClips;
     private bool isVideoPlaying = false;
 
     [Header("Audio")]
     public AudioSource soundPlayer;
+    public List<AudioClip> audioClips;
 
     [Header("Fog")]
     public GameObject fogParent;
@@ -44,6 +47,12 @@ public class SequenceScript : MonoBehaviour
     public GameObject rightThumbsUpDetector;
     private StaticHandGesture gestureTracker;
 
+    [Header("Testing Variables")]
+
+    public TextMeshProUGUI gestureText;
+    public int thumbsUpCount = 0;
+    public TextMeshProUGUI functionCompleteText;
+    public TextMeshProUGUI micActiveText;
 
     // Start is called before the first frame update
     void Start()
@@ -151,23 +160,35 @@ public class SequenceScript : MonoBehaviour
         switch (currentFunctionIndex)
         {
             case 0:
+                functionCompleteText.text = "Not ready...";
                 yield return StartCoroutine(ProgramStarting());
+                functionCompleteText.text = "Ready";
                 break;
             case 1:
+                functionCompleteText.text = "Not ready...";
                 yield return StartCoroutine(Introduction());
+                functionCompleteText.text = "Ready";
                 break;
             case 2:
                 for (int i = 0; i < 6; i++)
                 {
+                    functionCompleteText.text = "Not ready...";
                     yield return StartCoroutine(ShowStory(i));
+                    functionCompleteText.text = "Ready";
                     yield return StartCoroutine(WaitForThumbsUpToStartMic());
+                    functionCompleteText.text = "Not ready...";
                     yield return StartCoroutine(MicStart());
+                    functionCompleteText.text = "Ready";
                     yield return StartCoroutine(WaitForThumbsUpToEndMic());
+                    functionCompleteText.text = "Not ready...";
                     yield return StartCoroutine(MicEnd());
+                    functionCompleteText.text = "Ready";
                 }
                 break;
             case 3:
+                functionCompleteText.text = "Not ready...";
                 yield return StartCoroutine(ProgramEnding());
+                functionCompleteText.text = "Done";
                 break;
             default:
                 Debug.Log("All functions executed.");
@@ -189,15 +210,29 @@ public class SequenceScript : MonoBehaviour
 
     private IEnumerator Introduction()
     {
+        StartVideo(introClip);
         Debug.Log("Introduction...");
-        yield return new WaitForSeconds(2f); // Simulate some operation
+        yield return new WaitForSeconds((float)introClip.length);
     }
 
     private IEnumerator ShowStory(int iteration)
     {
         Debug.Log($"Showing Story Part {iteration + 1}...");
         yield return StartCoroutine(EnableEnvironment(iteration));
-        yield return new WaitForSeconds(2f); // Simulate story duration
+        float storyDuration = 0f;
+        if(videoClips[iteration] != null){
+            storyDuration = (float)videoClips[iteration].length;
+            StartVideo(videoClips[iteration]);
+        } else{
+             Debug.Log("No video");
+        }
+        // if(audioClips[iteration] != null){
+        //     storyDuration = (float)videoClips[iteration].length;
+        //     StartVideo(iteration);
+        // } else{
+        //      Debug.Log("No audio");
+        // }
+        yield return new WaitForSeconds(storyDuration);
     }
 
     private IEnumerator WaitForThumbsUpToStartMic()
@@ -210,6 +245,7 @@ public class SequenceScript : MonoBehaviour
     private IEnumerator MicStart()
     {
         Debug.Log("Mic Starting...");
+        micActiveText.text = "Mic On";
         yield return new WaitForSeconds(1f); // Simulate mic start
     }
 
@@ -223,6 +259,7 @@ public class SequenceScript : MonoBehaviour
     private IEnumerator MicEnd()
     {
         Debug.Log("Mic Ending...");
+        micActiveText.text = "Mic Off";
         yield return new WaitForSeconds(1f); // Simulate mic end
     }
 
@@ -232,40 +269,33 @@ public class SequenceScript : MonoBehaviour
         yield return new WaitForSeconds(2f); // Simulate some operation
     }
 
-    void TestAudioVideo()
-    {
-        StartVideo(0);
-        playThisAudio();
-    }
+    // void TestAudioVideo()
+    // {
+    //     StartVideo(0);
+    //     playThisAudio();
+    // }
 
-    void ResumeTestAudioVideo()
-    {
-        PauseVideo();
-        playThisAudio();
-    }
+    // void ResumeTestAudioVideo()
+    // {
+    //     PauseVideo();
+    //     playThisAudio();
+    // }
 
-    void PauseTestAudioVideo()
-    {
-        PauseVideo();
-        pauseThisAudio();
-    }
+    // void PauseTestAudioVideo()
+    // {
+    //     PauseVideo();
+    //     pauseThisAudio();
+    // }
 
 
-    void StartVideo(int index)
+    void StartVideo(VideoClip videoClip)
     {
-        if (index >= 0 && index < videoClips.Count)
-        {
-            // Stop current video
-            videoPlayer.Stop();
-            //Change to new video
-            videoPlayer.clip = videoClips[index];
-            //Play new video
-            videoPlayer.Play();
-        }
-        else
-        {
-            Debug.LogWarning("Invalid video index.");
-        }
+        // Stop current video
+        videoPlayer.Stop();
+        //Change to new video
+        videoPlayer.clip = videoClip;
+        //Play new video
+        videoPlayer.Play();
     }
 
     void PauseVideo()
@@ -278,6 +308,23 @@ public class SequenceScript : MonoBehaviour
     {
         //Pause current video
         videoPlayer.Play();
+    }
+
+    void StartAudio(int index)
+    {
+        if (index >= 0 && index < audioClips.Count)
+        {
+            // Stop current audio
+            soundPlayer.Stop();
+            // Change to new audio clip
+            soundPlayer.clip = audioClips[index];
+            // Play new audio clip
+            soundPlayer.Play();
+        }
+        else
+        {
+            Debug.LogWarning("Invalid audio index.");
+        }
     }
 
     void playThisAudio()
@@ -307,7 +354,7 @@ public class SequenceScript : MonoBehaviour
     IEnumerator EnableEnvironment(int envNum)
     {
         ShrinkFog();
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(4.0f);
         startEnvironment.SetActive(false);
         for (int i = 0; i < environments.Count; i++)
         {
@@ -327,6 +374,8 @@ public class SequenceScript : MonoBehaviour
     {
         // This method will be called when the gesture is detected
         // Debug.Log("Thumbs Up detected in listener!");
+        thumbsUpCount++;
+        gestureText.text = $"Thumbs Up Count: {thumbsUpCount}";
         if (!isExecuting) // Check if not already executing
         {
             StartCoroutine(ExecuteCurrentFunction());
