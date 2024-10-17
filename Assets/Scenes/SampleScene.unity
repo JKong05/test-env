@@ -1324,7 +1324,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  micRecorderObj: {fileID: 147415485}
+  micRecorderObj: {fileID: 147415487}
   fogParent: {fileID: 249914637}
   fogLerpDuration: 30
   fogSmallScale: {x: 0.005, y: 0.005, z: 0.005}
@@ -2312,7 +2312,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 147415486}
-  - component: {fileID: 147415485}
+  - component: {fileID: 147415487}
   m_Layer: 0
   m_Name: MicRecorderObj
   m_TagString: Untagged
@@ -2320,18 +2320,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &147415485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 147415484}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 001711c4205e200459d98d239b70bd60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &147415486
 Transform:
   m_ObjectHideFlags: 0
@@ -2347,6 +2335,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &147415487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 147415484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff03e38397bf9c14e9e255c88e16bcfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &150206811 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4103395466030174051, guid: 12e7c6e2a052ca344a4b1b5616e1597c, type: 3}

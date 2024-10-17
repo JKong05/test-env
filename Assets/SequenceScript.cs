@@ -27,7 +27,7 @@ public class SequenceScript : MonoBehaviour
     public AudioSource soundPlayer;
     public List<AudioClip> audioClips;
     [Header("Mic")]
-    public MicRecorder micRecorderObj;
+    public MicController micRecorderObj;
 
     [Header("Fog")]
     public GameObject fogParent;
@@ -258,7 +258,7 @@ public class SequenceScript : MonoBehaviour
     {
         Debug.Log("Mic Starting...");
         micActiveText.text = "Mic On";
-        micRecorderObj.GetComponent<MicRecorder>().StartRecording();
+        micRecorderObj.GetComponent<MicController>().StartRecording();
         yield return new WaitForSeconds(0.5f);
     }
 
@@ -273,7 +273,7 @@ public class SequenceScript : MonoBehaviour
     {
         Debug.Log("Mic Ending...");
         micActiveText.text = "Mic Off";
-        micRecorderObj.GetComponent<MicRecorder>().StopRecording();
+        micRecorderObj.GetComponent<MicController>().StopRecording();
         yield return new WaitForSeconds(0.5f);
     }
 

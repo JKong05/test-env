@@ -12,36 +12,36 @@ public class MicController : MonoBehaviour
     private bool _isRecording = false;
 
     // Reference to the UI button and text
-    public Button startStopButton;
-    public TextMeshProUGUI buttonText;
+    // public Button startStopButton;
+    // public TextMeshProUGUI buttonText;
 
     void Start()
     {
         // Set up the button listener
-        startStopButton.onClick.AddListener(OnButtonClick);
+        // startStopButton.onClick.AddListener(OnButtonClick);
     }
 
     // Handle button click
-    public void OnButtonClick()
-    {
-        if (_isRecording)
-        {
-            StopRecording();
-            buttonText.text = "Start Recording";
-        }
-        else
-        {
-            StartRecording();
-            buttonText.text = "Stop Recording";
-        }
-    }
+    // public void OnButtonClick()
+    // {
+    //     if (_isRecording)
+    //     {
+    //         StopRecording();
+    //         buttonText.text = "Start Recording";
+    //     }
+    //     else
+    //     {
+    //         StartRecording();
+    //         buttonText.text = "Stop Recording";
+    //     }
+    // }
 
     // Start recording
     public void StartRecording()
     {
         if (Microphone.devices.Length > 0)
         {
-            _micDevice = Microphone.devices[0];
+            _micDevice = Microphone.devices[1];
             _audioClip = Microphone.Start(_micDevice, false, 300, 44100); // Recording buffer for up to 5 minutes
             _isRecording = true;
             Debug.Log("Recording started.");
