@@ -15,7 +15,7 @@ public class MicManager : MonoBehaviour
         if (microphoneDevices.Length > 0)
         {
             // Automatically select the first microphone
-            selectedMicrophone = microphoneDevices[1]; 
+            selectedMicrophone = microphoneDevices[0]; 
             microphoneStatusText.text = $"Selected Microphone: {selectedMicrophone}";
             Debug.Log($"Selected Microphone: {selectedMicrophone}");
         }

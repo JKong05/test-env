@@ -7,13 +7,13 @@ using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine.XR.Hands.Samples.GestureSample;
 using TMPro;
 using System.Drawing;
+using System;
 
 public class SequenceScript : MonoBehaviour
 {
     // To keep track of the current function
-    private int currentFunctionIndex = 0;
-    private bool isExecuting = false;
-    private bool thumbsUpReceived = false;
+    private List<IEnumerator> sequentialSteps;
+    private int currentStepIndex = 0;
 
     //public variables (able to access within Unity editor)
     [Header("Video")]
@@ -27,7 +27,7 @@ public class SequenceScript : MonoBehaviour
     public AudioSource soundPlayer;
     public List<AudioClip> audioClips;
     [Header("Mic")]
-    public MicController micRecorderObj;
+    public MicRecorder micRecorderObj;
 
     [Header("Fog")]
     public GameObject fogParent;
@@ -47,8 +47,16 @@ public class SequenceScript : MonoBehaviour
     public List<GameObject> environments;
 
     [Header("Gestures")]
+    private string currentGesture = "";
     public GameObject rightThumbsUpDetector;
-    private StaticHandGesture gestureTracker;
+    public GameObject rightThumbsDownDetector;
+    private StaticHandGesture thumbsUpGestureTracker;
+    private StaticHandGesture thumbsDownGestureTracker;
+
+    [Header("HUD Elements")]
+    public TextMeshProUGUI ProgramStartText;
+    public TextMeshProUGUI MicStatusText;
+    public TextMeshProUGUI StoryModalityText;
 
     [Header("Testing Variables")]
 
@@ -86,43 +94,55 @@ public class SequenceScript : MonoBehaviour
             environments[i].SetActive(false);
         }
 
+        //reset videplayer
+        videoPlayer.targetTexture.Release();
+
         //setting gesture detectors
-        gestureTracker = rightThumbsUpDetector.GetComponent<StaticHandGesture>();
-        if (gestureTracker != null)
+        thumbsUpGestureTracker = rightThumbsUpDetector.GetComponent<StaticHandGesture>();
+        thumbsDownGestureTracker = rightThumbsDownDetector.GetComponent<StaticHandGesture>();
+
+        if (thumbsUpGestureTracker != null)
         {
-            // Subscribe to the gesturePerformed event
-            gestureTracker.gesturePerformed.AddListener(OnThumbsUpPerformed);
+            thumbsUpGestureTracker.gesturePerformed.AddListener(OnThumbsUpPerformed);
         }
         else
         {
-            Debug.LogError("GestureTracker component not found on the assigned GameObject.");
+            Debug.LogError("Thumbs Up GestureTracker component not found on the assigned GameObject.");
         }
+
+        if (thumbsDownGestureTracker != null)
+        {
+            thumbsDownGestureTracker.gesturePerformed.AddListener(OnThumbsDownPerformed);
+        }
+        else
+        {
+            Debug.LogError("Thumbs Down GestureTracker component not found on the assigned GameObject.");
+        }
+
+        // Initialize the steps to execute
+        sequentialSteps = new List<IEnumerator>
+        {
+            ProgramStarting(),
+            Introduction(),
+            ShowStories(),
+            ProgramEnding()
+        };
+
+        // Start the sequential process
+        StartCoroutine(ExecuteSequentialSteps());
     }
 
     // Update is called once per frame
     void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.Alpha1))
-        // {
-        //     TestAudioVideo();
-        // }
-        // if (Input.GetKeyDown(KeyCode.Alpha2))
-        // {
-        //     PauseTestAudioVideo();
-        // }
-        // if (Input.GetKeyDown(KeyCode.Alpha3))
-        // {
-        //     ResumeTestAudioVideo();
-        // }
-        // if (Input.GetKeyDown(KeyCode.Alpha9))
-        // {
-        //     StartCoroutine(EnableEnvironment(0));
-        // }
-        // if (Input.GetKeyDown(KeyCode.Alpha0))
-        // {
-        //     StartCoroutine(EnableEnvironment(1));
-        // }
-
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            OnThumbsUpPerformed();
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            OnThumbsDownPerformed();
+        }
         if (updateFogScale)
         {
             fogElapsedTime += Time.deltaTime;
@@ -161,73 +181,64 @@ public class SequenceScript : MonoBehaviour
         }
     }
 
-    private IEnumerator ExecuteCurrentFunction()
+    private IEnumerator ExecuteSequentialSteps()
     {
-        isExecuting = true; // Set flag to true, indicating the coroutine is running
-
-        switch (currentFunctionIndex)
+        while (currentStepIndex < sequentialSteps.Count)
         {
-            case 0:
-                functionCompleteText.text = "Not ready...";
-                yield return StartCoroutine(ProgramStarting());
-                functionCompleteText.text = "Ready";
-                break;
-            case 1:
-                functionCompleteText.text = "Not ready...";
-                yield return StartCoroutine(Introduction());
-                functionCompleteText.text = "Ready";
-                break;
-            case 2:
-                for (int i = 0; i < 6; i++)
-                {
-                    functionCompleteText.text = "Not ready...";
-                    yield return StartCoroutine(ShowStory(i));
-                    functionCompleteText.text = "Ready";
-                    yield return StartCoroutine(WaitForThumbsUpToStartMic());
-                    functionCompleteText.text = "Not ready...";
-                    yield return StartCoroutine(MicStart());
-                    functionCompleteText.text = "Ready";
-                    yield return StartCoroutine(WaitForThumbsUpToEndMic());
-                    functionCompleteText.text = "Not ready...";
-                    yield return StartCoroutine(MicEnd());
-                    functionCompleteText.text = "Ready";
-                }
-                break;
-            case 3:
-                functionCompleteText.text = "Not ready...";
-                yield return StartCoroutine(ProgramEnding());
-                functionCompleteText.text = "Done";
-                break;
-            default:
-                Debug.Log("All functions executed.");
-                currentFunctionIndex = 0; // Reset to start over
-                yield break; // Exit coroutine
+            // Execute the current step
+            yield return StartCoroutine(sequentialSteps[currentStepIndex]);
+            currentStepIndex++;
         }
-
-        // Move to the next function
-        currentFunctionIndex++;
-
-        isExecuting = false; // Set flag back to false, indicating the coroutine has finished
     }
 
     private IEnumerator ProgramStarting()
     {
         Debug.Log("Program Starting...");
-        yield return new WaitForSeconds(2f); // Simulate some operation
+        functionCompleteText.text = "ready";
+        yield return WaitForGesture(new List<string> { "ThumbsUp" });
+        ProgramStartText.gameObject.SetActive(false);
     }
 
     private IEnumerator Introduction()
     {
         StartVideo(introClip);
         Debug.Log("Introduction...");
+        functionCompleteText.text = "Introduction...";
         yield return new WaitForSeconds((float)introClip.length);
+        functionCompleteText.text = "ready";
+        yield return WaitForGesture(new List<string> { "ThumbsUp", "ThumbsDown" });
+        // Respond based on the gesture received
+        if (currentGesture == "ThumbsUp")
+        {
+            Debug.Log("Thumbs Up received in Introduction.");
+        }
+        else if (currentGesture == "ThumbsDown")
+        {
+            Debug.Log("Thumbs Down received, repeating Introduction.");
+            yield return StartCoroutine(Introduction());
+        }
+        currentGesture = ""; // Reset for the next iteration
+    }
+
+    private IEnumerator ShowStories()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            yield return StartCoroutine(ShowStory(i));
+            yield return StartCoroutine(MicStart());
+            yield return StartCoroutine(MicEnd());
+        }
+        yield return new WaitForSeconds(0f);
     }
 
     private IEnumerator ShowStory(int iteration)
     {
         Debug.Log($"Showing Story Part {iteration + 1}...");
+        functionCompleteText.text = $"Showing Story Part {iteration + 1}...";
         yield return StartCoroutine(EnableEnvironment(iteration));
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
+        StoryModalityText.gameObject.SetActive(false);
+        yield return new WaitForSeconds(1.5f);
         float storyDuration = 0f;
         if (videoClips[iteration] != null)
         {
@@ -238,75 +249,46 @@ public class SequenceScript : MonoBehaviour
         {
             Debug.Log("No video");
         }
-        // if(audioClips[iteration] != null){
-        //     storyDuration = (float)videoClips[iteration].length;
-        //     StartVideo(iteration);
-        // } else{
-        //      Debug.Log("No audio");
-        // }
         yield return new WaitForSeconds(storyDuration);
-    }
-
-    private IEnumerator WaitForThumbsUpToStartMic()
-    {
-        thumbsUpReceived = false; // Reset before waiting
-        Debug.Log("Waiting for thumbs up to start the mic...");
-        yield return new WaitUntil(() => thumbsUpReceived); // Wait until thumbs up is received
+        functionCompleteText.text = "ready";
+        yield return WaitForGesture(new List<string> { "ThumbsUp" });
     }
 
     private IEnumerator MicStart()
     {
         Debug.Log("Mic Starting...");
+        functionCompleteText.text = "Mic Starting...";
         micActiveText.text = "Mic On";
-        micRecorderObj.GetComponent<MicController>().StartRecording();
+        MicStatusText.gameObject.SetActive(true);
+        micRecorderObj.GetComponent<MicRecorder>().StartRecording();
         yield return new WaitForSeconds(0.5f);
-    }
-
-    private IEnumerator WaitForThumbsUpToEndMic()
-    {
-        thumbsUpReceived = false; // Reset before waiting
-        Debug.Log("Waiting for thumbs up to end the mic...");
-        yield return new WaitUntil(() => thumbsUpReceived); // Wait until thumbs up is received
+        functionCompleteText.text = "ready";
+        yield return WaitForGesture(new List<string> { "ThumbsUp" });
     }
 
     private IEnumerator MicEnd()
     {
         Debug.Log("Mic Ending...");
+        functionCompleteText.text = "Mic Ending...";
         micActiveText.text = "Mic Off";
-        micRecorderObj.GetComponent<MicController>().StopRecording();
+        micRecorderObj.GetComponent<MicRecorder>().StopRecording();
+        MicStatusText.gameObject.SetActive(false);
         yield return new WaitForSeconds(0.5f);
     }
 
     private IEnumerator ProgramEnding()
     {
         Debug.Log("Program Ending...");
+        functionCompleteText.text = "Program Ending...";
         yield return new WaitForSeconds(2f); // Simulate some operation
     }
-
-    // void TestAudioVideo()
-    // {
-    //     StartVideo(0);
-    //     playThisAudio();
-    // }
-
-    // void ResumeTestAudioVideo()
-    // {
-    //     PauseVideo();
-    //     playThisAudio();
-    // }
-
-    // void PauseTestAudioVideo()
-    // {
-    //     PauseVideo();
-    //     pauseThisAudio();
-    // }
-
 
     void StartVideo(VideoClip videoClip)
     {
         // Stop current video
         videoPlayer.Stop();
         //Change to new video
+        videoPlayer.clip = null;
         videoPlayer.clip = videoClip;
         //Play new video
         videoPlayer.Play();
@@ -368,6 +350,10 @@ public class SequenceScript : MonoBehaviour
     IEnumerator EnableEnvironment(int envNum)
     {
         ShrinkFog();
+        yield return new WaitForSeconds(1.0f);
+        String modality = storyType[envNum] == 0 ? "Audio" : storyType[envNum] == 1 ? "Video" : storyType[envNum] == 2 ? "Audiovisual" : "Unknown Type";
+        StoryModalityText.text = $"<size=100%>Story {envNum + 1}<br><size=75%>{modality}";
+        StoryModalityText.gameObject.SetActive(true);
         yield return new WaitForSeconds(3.0f);
         videoPlayer.GetComponent<Renderer>().enabled = (storyType[envNum] != 0);
         videoPlayer.SetDirectAudioMute(0, (storyType[envNum] == 1));
@@ -398,17 +384,42 @@ public class SequenceScript : MonoBehaviour
         ExpandFog();
     }
 
-    void OnThumbsUpPerformed()
+    private IEnumerator WaitForGesture(List<string> validGestures)
     {
-        // This method will be called when the gesture is detected
-        // Debug.Log("Thumbs Up detected in listener!");
-        thumbsUpCount++;
-        gestureText.text = $"Thumbs Up Count: {thumbsUpCount}";
-        if (!isExecuting) // Check if not already executing
+        currentGesture = ""; // Reset gesture
+        // Wait until a gesture is detected that matches the valid gestures
+        while (!validGestures.Contains(currentGesture))
         {
-            StartCoroutine(ExecuteCurrentFunction());
+            yield return null; // Keep waiting until a valid gesture is set
         }
-        thumbsUpReceived = true;
+    }
+
+    private void HandleGestureResponse()
+    {
+        switch (currentGesture)
+        {
+            case "ThumbsUp":
+                Debug.Log("Thumbs Up received.");
+                break;
+            case "ThumbsDown":
+                Debug.Log("Thumbs Down received.");
+                break;
+            default:
+                Debug.Log("Unknown gesture.");
+                break;
+        }
+        currentGesture = ""; // Reset for the next gesture
+    }
+
+    // Gesture detection methods
+    public void OnThumbsUpPerformed()
+    {
+        currentGesture = "ThumbsUp"; // Set the current gesture to Thumbs Up
+    }
+
+    public void OnThumbsDownPerformed()
+    {
+        currentGesture = "ThumbsDown"; // Set the current gesture to Thumbs Down
     }
 
 

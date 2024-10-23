@@ -54,7 +54,7 @@ public class MicRecorder : MonoBehaviour
     {
         if (Microphone.devices.Length > 0)
         {
-            _micDevice = Microphone.devices[1];
+            _micDevice = Microphone.devices[0];
             _audioClip = Microphone.Start(_micDevice, false, 300, 44100); // Recording buffer for up to 5 minutes
             _isRecording = true;
             Debug.Log("Recording started.");
