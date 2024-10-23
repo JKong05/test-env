@@ -204,6 +204,7 @@ public class SequenceScript : MonoBehaviour
         StartVideo(introClip);
         Debug.Log("Introduction...");
         functionCompleteText.text = "Introduction...";
+        Debug.Log((float)introClip.length);
         yield return new WaitForSeconds((float)introClip.length);
         functionCompleteText.text = "ready";
         yield return WaitForGesture(new List<string> { "ThumbsUp", "ThumbsDown" });
@@ -288,7 +289,6 @@ public class SequenceScript : MonoBehaviour
         // Stop current video
         videoPlayer.Stop();
         //Change to new video
-        videoPlayer.clip = null;
         videoPlayer.clip = videoClip;
         //Play new video
         videoPlayer.Play();
