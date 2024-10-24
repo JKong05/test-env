@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
 using System.Collections;
-using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine.XR.Hands.Samples.GestureSample;
 using TMPro;
 using System.Drawing;
