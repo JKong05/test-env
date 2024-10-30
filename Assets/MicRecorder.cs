@@ -66,7 +66,7 @@ public class MicRecorder : MonoBehaviour
     }
 
     // Stop recording and save
-    public void StopRecording()
+    public void StopRecording(int storynum)
     {
         if (_isRecording)
         {
@@ -75,7 +75,7 @@ public class MicRecorder : MonoBehaviour
 
             // Trim the clip to the actual recorded length
             AudioClip trimmedClip = TrimAudioClip(_audioClip, recordedSamples);
-            SaveWavToSpecificFolder(trimmedClip, "MyRecording.wav", "RecordingsFolder");
+            SaveWavToSpecificFolder(trimmedClip, $"p1_story{storynum}.wav", "RecordingsFolder");
             _isRecording = false;
 
             Debug.Log("Recording stopped and saved.");
