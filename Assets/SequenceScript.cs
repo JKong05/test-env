@@ -226,7 +226,7 @@ public class SequenceScript : MonoBehaviour
         {
             yield return StartCoroutine(ShowStory(i));
             yield return StartCoroutine(MicStart());
-            yield return StartCoroutine(MicEnd());
+            yield return StartCoroutine(MicEnd(i));
         }
         yield return new WaitForSeconds(0f);
     }
@@ -266,12 +266,12 @@ public class SequenceScript : MonoBehaviour
         yield return WaitForGesture(new List<string> { "ThumbsUp" });
     }
 
-    private IEnumerator MicEnd()
+    private IEnumerator MicEnd(int iteration)
     {
         Debug.Log("Mic Ending...");
         functionCompleteText.text = "Mic Ending...";
         micActiveText.text = "Mic Off";
-        micRecorderObj.GetComponent<MicRecorder>().StopRecording();
+        micRecorderObj.GetComponent<MicRecorder>().StopRecording(iteration+1);
         MicStatusText.gameObject.SetActive(false);
         yield return new WaitForSeconds(0.5f);
     }
