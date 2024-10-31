@@ -68,6 +68,7 @@ public class SequenceScript : MonoBehaviour
     //1 = visual
     //2 = audiovisual
     public List<int> storyType = new List<int> { 0, 1, 2, 0, 1, 2 };
+    public List<String> storyTitles;
 
     // Start is called before the first frame update
     void Start()
@@ -153,7 +154,7 @@ public class SequenceScript : MonoBehaviour
             }
             else
             {
-                t = Mathf.Clamp01(fogElapsedTime / fogLerpDuration);
+                t = Mathf.Clamp01(fogElapsedTime / (fogLerpDuration * 2));
             }
             fogParent.transform.localScale = Vector3.Lerp(fogParent.transform.localScale, fogNewScale, t);
 
@@ -349,9 +350,10 @@ public class SequenceScript : MonoBehaviour
     IEnumerator EnableEnvironment(int envNum)
     {
         ShrinkFog();
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(1.2f);
         String modality = storyType[envNum] == 0 ? "Audio" : storyType[envNum] == 1 ? "Video" : storyType[envNum] == 2 ? "Audiovisual" : "Unknown Type";
-        StoryModalityText.text = $"<size=100%>Story {envNum + 1}<br><size=75%>{modality}";
+        String title = storyTitles[envNum];
+        StoryModalityText.text = $"<size=100%>{title}<br><size=75%>{modality}";
         StoryModalityText.gameObject.SetActive(true);
         yield return new WaitForSeconds(3.0f);
         videoPlayer.GetComponent<Renderer>().enabled = (storyType[envNum] != 0);

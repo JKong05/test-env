@@ -1,6 +1,6 @@
 Shader "Custom/flowing_water_shader"
 {
-    Properties
+     Properties
     {
         _MainTex ("Water Texture", 2D) = "white" {}
         _FlowSpeed ("Flow Speed", Range(0.0, 1.0)) = 0.1
@@ -11,12 +11,16 @@ Shader "Custom/flowing_water_shader"
     }
     SubShader
     {
-        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+        Tags { "Queue"="Transparent-1" "RenderType"="Transparent" }
         LOD 200
 
         Pass
         {
+            // Enable alpha blending
             Blend SrcAlpha OneMinusSrcAlpha
+            // Enable ZWrite for depth testing with other transparent objects
+            ZWrite On
+            ZTest LEqual
 
             CGPROGRAM
             #pragma vertex vert
@@ -58,7 +62,7 @@ Shader "Custom/flowing_water_shader"
             {
                 // Sample the texture and apply color tint and opacity
                 fixed4 col = tex2D(_MainTex, i.uv) * _Color;
-                col.a *= _Opacity; // Apply opacity
+                col.a *= _Opacity; // Apply opacity control
                 return col;
             }
             ENDCG
