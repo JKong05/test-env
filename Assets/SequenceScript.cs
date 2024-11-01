@@ -150,11 +150,11 @@ public class SequenceScript : MonoBehaviour
             float t;
             if (fogNewScale == fogLargeScale)
             {
-                t = Mathf.Clamp01(fogElapsedTime / (fogLerpDuration * 80));
+                t = Mathf.Clamp01(fogElapsedTime / (fogLerpDuration * 240f * Time.deltaTime));
             }
             else
             {
-                t = Mathf.Clamp01(fogElapsedTime / (fogLerpDuration * 2));
+                t = Mathf.Clamp01(fogElapsedTime / (fogLerpDuration * 12f * Time.deltaTime));
             }
             fogParent.transform.localScale = Vector3.Lerp(fogParent.transform.localScale, fogNewScale, t);
 
