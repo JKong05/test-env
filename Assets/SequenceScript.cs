@@ -41,9 +41,11 @@ public class SequenceScript : MonoBehaviour
     public float fogChildScaleFactor;
 
     [Header("Environment")]
+    public bool correct_environment;
     public GameObject startEnvironment;
 
     public List<GameObject> environments;
+    public List<GameObject> environments_wrong;
 
     [Header("Gestures")]
     private string currentGesture = "";
@@ -89,9 +91,20 @@ public class SequenceScript : MonoBehaviour
         fogParent.transform.localScale = fogLargeScale;
 
         startEnvironment.SetActive(true);
-        for (int i = 0; i < environments.Count; i++)
+
+        if (correct_environment)
         {
-            environments[i].SetActive(false);
+            for (int i = 0; i < environments.Count; i++)
+            {
+                environments[i].SetActive(false);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < environments_wrong.Count; i++)
+            {
+                environments_wrong[i].SetActive(false);
+            }
         }
 
         //reset videplayer
@@ -272,7 +285,7 @@ public class SequenceScript : MonoBehaviour
         Debug.Log("Mic Ending...");
         functionCompleteText.text = "Mic Ending...";
         micActiveText.text = "Mic Off";
-        micRecorderObj.GetComponent<MicRecorder>().StopRecording(iteration+1);
+        micRecorderObj.GetComponent<MicRecorder>().StopRecording(iteration + 1);
         MicStatusText.gameObject.SetActive(false);
         yield return new WaitForSeconds(0.5f);
     }
@@ -371,15 +384,32 @@ public class SequenceScript : MonoBehaviour
             storyTypeText.text = "AudioVisual";
         }
         startEnvironment.SetActive(false);
-        for (int i = 0; i < environments.Count; i++)
+        if (correct_environment)
         {
-            if (i == envNum)
+            for (int i = 0; i < environments.Count; i++)
             {
-                environments[i].SetActive(true);
+                if (i == envNum)
+                {
+                    environments[i].SetActive(true);
+                }
+                else
+                {
+                    environments[i].SetActive(false);
+                }
             }
-            else
+        }
+        else
+        {
+            for (int i = 0; i < environments_wrong.Count; i++)
             {
-                environments[i].SetActive(false);
+                if (i == envNum)
+                {
+                    environments_wrong[i].SetActive(true);
+                }
+                else
+                {
+                    environments_wrong[i].SetActive(false);
+                }
             }
         }
         ExpandFog();
