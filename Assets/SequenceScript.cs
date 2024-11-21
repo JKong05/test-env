@@ -233,8 +233,7 @@ public class SequenceScript : MonoBehaviour
     {
         for (int i = 0; i < 6; i++)
         {
-            int storyIndex = i >= 3 ? 3 : i;
-            yield return StartCoroutine(ShowStory(storyIndex));
+            yield return StartCoroutine(ShowStory(i));
             yield return StartCoroutine(MicStart());
             yield return StartCoroutine(MicEnd(i));
         }
@@ -358,6 +357,7 @@ public class SequenceScript : MonoBehaviour
 
     IEnumerator EnableEnvironment(int envNum)
     {
+        int storyIndex = envNum >= 3 ? 3 : envNum;
         ShrinkFog();
         yield return new WaitForSeconds(1.2f);
         String modality = storyType[envNum] == 0 ? "Audio" : storyType[envNum] == 1 ? "Video" : storyType[envNum] == 2 ? "Audiovisual" : "Unknown Type";
@@ -384,7 +384,7 @@ public class SequenceScript : MonoBehaviour
         {
             for (int i = 0; i < environments.Count; i++)
             {
-                if (i == envNum)
+                if (i == storyIndex)
                 {
                     environments[i].SetActive(true);
                 }
@@ -398,7 +398,7 @@ public class SequenceScript : MonoBehaviour
         {
             for (int i = 0; i < environments_wrong.Count; i++)
             {
-                if (i == envNum)
+                if (i == storyIndex)
                 {
                     environments_wrong[i].SetActive(true);
                 }
