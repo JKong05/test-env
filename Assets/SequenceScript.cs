@@ -75,6 +75,7 @@ public class SequenceScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        correct_environment = new System.Random().Next(2) == 0;
         //Ensuring videoMaterial is assigned to videoObject
         if (videoMaterial != null && videoPlayer != null)
         {
@@ -92,19 +93,13 @@ public class SequenceScript : MonoBehaviour
 
         startEnvironment.SetActive(true);
 
-        if (correct_environment)
+        for (int i = 0; i < environments.Count; i++)
         {
-            for (int i = 0; i < environments.Count; i++)
-            {
-                environments[i].SetActive(false);
-            }
+            environments[i].SetActive(false);
         }
-        else
+        for (int i = 0; i < environments_wrong.Count; i++)
         {
-            for (int i = 0; i < environments_wrong.Count; i++)
-            {
-                environments_wrong[i].SetActive(false);
-            }
+            environments_wrong[i].SetActive(false);
         }
 
         //reset videplayer
@@ -238,7 +233,8 @@ public class SequenceScript : MonoBehaviour
     {
         for (int i = 0; i < 6; i++)
         {
-            yield return StartCoroutine(ShowStory(i));
+            int storyIndex = i >= 3 ? 3 : i;
+            yield return StartCoroutine(ShowStory(storyIndex));
             yield return StartCoroutine(MicStart());
             yield return StartCoroutine(MicEnd(i));
         }
