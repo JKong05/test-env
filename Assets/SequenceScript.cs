@@ -7,12 +7,15 @@ using UnityEngine.XR.Hands.Samples.GestureSample;
 using TMPro;
 using System.Drawing;
 using System;
+using Unity.VisualScripting;
+
 
 public class SequenceScript : MonoBehaviour
 {
     // To keep track of the current function
     private List<IEnumerator> sequentialSteps;
     private int currentStepIndex = 0;
+    private int participantNum = 0;
 
     //public variables (able to access within Unity editor)
     [Header("Video")]
@@ -51,13 +54,20 @@ public class SequenceScript : MonoBehaviour
     private string currentGesture = "";
     public GameObject rightThumbsUpDetector;
     public GameObject rightThumbsDownDetector;
+    public GameObject leftThumbsUpDetector;
+    public GameObject leftThumbsDownDetector;
     private StaticHandGesture thumbsUpGestureTracker;
     private StaticHandGesture thumbsDownGestureTracker;
+    private StaticHandGesture thumbsUpGestureTracker2;
+    private StaticHandGesture thumbsDownGestureTracker2;
 
     [Header("HUD Elements")]
+    public GameObject ProgramSetupCanvas;
+    public TMP_Dropdown  ParticipantNumDropdown;
     public TextMeshProUGUI ProgramStartText;
     public TextMeshProUGUI MicStatusText;
     public TextMeshProUGUI StoryModalityText;
+    public TextMeshProUGUI storyDoneText;
 
     [Header("Testing Variables")]
 
@@ -75,7 +85,6 @@ public class SequenceScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        correct_environment = new System.Random().Next(2) == 0;
         //Ensuring videoMaterial is assigned to videoObject
         if (videoMaterial != null && videoPlayer != null)
         {
@@ -108,6 +117,8 @@ public class SequenceScript : MonoBehaviour
         //setting gesture detectors
         thumbsUpGestureTracker = rightThumbsUpDetector.GetComponent<StaticHandGesture>();
         thumbsDownGestureTracker = rightThumbsDownDetector.GetComponent<StaticHandGesture>();
+        thumbsUpGestureTracker2 = leftThumbsUpDetector.GetComponent<StaticHandGesture>();
+        thumbsDownGestureTracker2 = leftThumbsDownDetector.GetComponent<StaticHandGesture>();
 
         if (thumbsUpGestureTracker != null)
         {
@@ -126,6 +137,23 @@ public class SequenceScript : MonoBehaviour
         {
             Debug.LogError("Thumbs Down GestureTracker component not found on the assigned GameObject.");
         }
+        if (thumbsUpGestureTracker2 != null)
+        {
+            thumbsUpGestureTracker2.gesturePerformed.AddListener(OnThumbsUpPerformed);
+        }
+        else
+        {
+            Debug.LogError("Thumbs Up GestureTracker 2 component not found on the assigned GameObject.");
+        }
+
+        if (thumbsDownGestureTracker2 != null)
+        {
+            thumbsDownGestureTracker2.gesturePerformed.AddListener(OnThumbsDownPerformed);
+        }
+        else
+        {
+            Debug.LogError("Thumbs Down GestureTracker 2 component not found on the assigned GameObject.");
+        }
 
         // Initialize the steps to execute
         sequentialSteps = new List<IEnumerator>
@@ -136,8 +164,6 @@ public class SequenceScript : MonoBehaviour
             ProgramEnding()
         };
 
-        // Start the sequential process
-        StartCoroutine(ExecuteSequentialSteps());
     }
 
     // Update is called once per frame
@@ -199,6 +225,34 @@ public class SequenceScript : MonoBehaviour
         }
     }
 
+    public void StartProgram_CorrectEnv()
+    {
+        String particpantNumString = ParticipantNumDropdown.options[ParticipantNumDropdown.value].text;
+        if (!string.IsNullOrEmpty(particpantNumString) && int.TryParse(particpantNumString, out int result))
+        {
+            participantNum = Int32.Parse(particpantNumString);
+        }
+        correct_environment = true;
+        ProgramSetupCanvas.gameObject.SetActive(false);
+        ProgramStartText.gameObject.SetActive(true);
+        // Start the sequential process
+        StartCoroutine(ExecuteSequentialSteps());
+    }
+
+    public void StartProgram_IncorrectEnv()
+    {
+        String particpantNumString = ParticipantNumDropdown.options[ParticipantNumDropdown.value].text;
+        if (!string.IsNullOrEmpty(particpantNumString) && int.TryParse(particpantNumString, out int result))
+        {
+            participantNum = Int32.Parse(particpantNumString);
+        }
+        correct_environment = false;
+        ProgramSetupCanvas.gameObject.SetActive(false);
+        ProgramStartText.gameObject.SetActive(true);
+        // Start the sequential process
+        StartCoroutine(ExecuteSequentialSteps());
+    }
+
     private IEnumerator ProgramStarting()
     {
         Debug.Log("Program Starting...");
@@ -231,13 +285,39 @@ public class SequenceScript : MonoBehaviour
 
     private IEnumerator ShowStories()
     {
-        for (int i = 0; i < 6; i++)
+        // Random order for the first three
+        List<int> firstThree = new List<int> { 0, 1, 2 };  // First three
+        ShuffleList(firstThree);  // Shuffle the list
+        // Execute first three in random order
+        foreach (int i in firstThree)
         {
             yield return StartCoroutine(ShowStory(i));
+            storyDoneText.gameObject.SetActive(false);
+            yield return StartCoroutine(MicStart());
+            yield return StartCoroutine(MicEnd(i));
+        }
+        for (int i = 3; i < 6; i++)
+        {
+            yield return StartCoroutine(ShowStory(i));
+            storyDoneText.gameObject.SetActive(false);
             yield return StartCoroutine(MicStart());
             yield return StartCoroutine(MicEnd(i));
         }
         yield return new WaitForSeconds(0f);
+    }
+
+    // Shuffle the list using Fisher-Yates algorithm
+    private void ShuffleList(List<int> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = UnityEngine.Random.Range(0, n + 1);
+            int value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
     }
 
     private IEnumerator ShowStory(int iteration)
@@ -260,6 +340,7 @@ public class SequenceScript : MonoBehaviour
         }
         yield return new WaitForSeconds(storyDuration);
         functionCompleteText.text = "ready";
+        storyDoneText.gameObject.SetActive(true);
         yield return WaitForGesture(new List<string> { "ThumbsUp" });
     }
 
@@ -280,7 +361,7 @@ public class SequenceScript : MonoBehaviour
         Debug.Log("Mic Ending...");
         functionCompleteText.text = "Mic Ending...";
         micActiveText.text = "Mic Off";
-        micRecorderObj.GetComponent<MicRecorder>().StopRecording(iteration + 1);
+        micRecorderObj.GetComponent<MicRecorder>().StopRecording(participantNum, iteration + 1);
         MicStatusText.gameObject.SetActive(false);
         yield return new WaitForSeconds(0.5f);
     }

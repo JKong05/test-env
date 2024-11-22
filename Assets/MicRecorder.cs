@@ -66,7 +66,7 @@ public class MicRecorder : MonoBehaviour
     }
 
     // Stop recording and save
-    public void StopRecording(int storynum)
+    public void StopRecording(int participantNum, int storynum)
     {
         if (_isRecording)
         {
@@ -75,7 +75,15 @@ public class MicRecorder : MonoBehaviour
 
             // Trim the clip to the actual recorded length
             AudioClip trimmedClip = TrimAudioClip(_audioClip, recordedSamples);
-            SaveWavToSpecificFolder(trimmedClip, $"p1_story{storynum}.wav", "RecordingsFolder");
+            string recordingsPath = Path.Combine(Application.persistentDataPath, "RecordingsFolder");
+            string participantFolder = Path.Combine(recordingsPath, "p" + participantNum.ToString());
+
+            // Ensure the folder exists
+            if (!Directory.Exists(participantFolder))
+            {
+                Directory.CreateDirectory(participantFolder);
+            }
+            SaveWavToSpecificFolder(trimmedClip, $"p{participantNum}-story{storynum}.wav", participantFolder);
             _isRecording = false;
 
             Debug.Log("Recording stopped and saved.");
@@ -133,7 +141,7 @@ public class MicRecorder : MonoBehaviour
         // Remove the extension from the file name
         string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
         string extension = Path.GetExtension(fileName);
-        
+
         // Start with the base file name
         string uniqueFileName = fileName;
         int fileCount = 1;
