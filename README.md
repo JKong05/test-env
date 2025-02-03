@@ -14,7 +14,7 @@
 │   ├── XR
 │   ├── XRI
 │   ├── facePlayer.cs                    # Makes videoplayer follow participant view (not used currently)
-│   ├── HandGestureDetector.cs           # 
+│   ├── HandGestureDetector.cs           # Hand gesture debugger tool (not used currently)
 │   ├── HandTrackingVisualizer.cs        # Visualizes hand tracking data for debugging
 │   ├── MicManager.cs                    # Used for debugging mic input
 │   ├── MicRecorder.cs                   # Handles recording and saving mic audio
@@ -35,7 +35,7 @@ The research project explores how the story presentation modalities and environm
 git clone https://github.com/tevinpark/LLM_BJT_ENV.git
 ```
 2. Open folder in Unity Editor
-3. Install required packages
+    - Unity will automatically install required packages
 4. Run the project
     - Select main scene in Assets/Scenes/ folder
     - Click "Play" in Unity (top center play button)
