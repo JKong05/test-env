@@ -34,8 +34,11 @@ The research project explores how the story presentation modalities and environm
 ```
 git clone https://github.com/tevinpark/LLM_BJT_ENV.git
 ```
-2. Open folder in Unity Editor
-    - Unity will automatically install required packages
+> Requires 750+ mb of storage
+2. Download Unity Editor version 2023.3.47f1 from [Unity Downloads Archive](https://unity.com/releases/editor/archive)
+3. Open folder in Unity Editor
+> Takes around 5-10 minutes to open project for first time
+> Note: Unity automatically installs all required packages
 4. Run the project
-    - Select main scene in Assets/Scenes/ folder
-    - Click "Play" in Unity (top center play button)
+    - Select SampleScene.unity in ```Assets/Scenes/``` folder
+    - Press the play button at top center of screen
