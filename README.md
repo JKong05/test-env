@@ -1,6 +1,6 @@
 # Environments Unity Project
 
-'''
+'''none
 ├── .vscode
 ├── Assets
 │   ├── Materials
@@ -31,7 +31,7 @@ The research project explores how the story presentation modalities and environm
 
 # Quick Start
 1. Clone repository
-'''
+'''none
 git clone https://github.com/tevinpark/LLM_BJT_ENV.git
 '''
 2. Open folder in Unity Editor
