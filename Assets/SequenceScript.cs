@@ -120,39 +120,6 @@ public class SequenceScript : MonoBehaviour
         InitializeGestureTracker(thumbsDownGestureTracker, OnThumbsDownPerformed, "Thumbs Down");
         InitializeGestureTracker(thumbsUpGestureTracker2, OnThumbsUpPerformed, "Thumbs Up 2");
         InitializeGestureTracker(thumbsDownGestureTracker2, OnThumbsDownPerformed, "Thumbs Down 2");
-        // if (thumbsUpGestureTracker != null)
-        // {
-        //     thumbsUpGestureTracker.gesturePerformed.AddListener(OnThumbsUpPerformed);
-        // }
-        // else
-        // {
-        //     Debug.LogError("Thumbs Up GestureTracker component not found on the assigned GameObject.");
-        // }
-
-        // if (thumbsDownGestureTracker != null)
-        // {
-        //     thumbsDownGestureTracker.gesturePerformed.AddListener(OnThumbsDownPerformed);
-        // }
-        // else
-        // {
-        //     Debug.LogError("Thumbs Down GestureTracker component not found on the assigned GameObject.");
-        // }
-        // if (thumbsUpGestureTracker2 != null)
-        // {
-        //     thumbsUpGestureTracker2.gesturePerformed.AddListener(OnThumbsUpPerformed);
-        // }
-        // else
-        // {
-        //     Debug.LogError("Thumbs Up GestureTracker 2 component not found on the assigned GameObject.");
-        // }
-        // if (thumbsDownGestureTracker2 != null)
-        // {
-        //     thumbsDownGestureTracker2.gesturePerformed.AddListener(OnThumbsDownPerformed);
-        // }
-        // else
-        // {
-        //     Debug.LogError("Thumbs Down GestureTracker 2 component not found on the assigned GameObject.");
-        // }
 
         // Initialize the steps to execute
         sequentialSteps = new List<IEnumerator>
@@ -163,18 +130,6 @@ public class SequenceScript : MonoBehaviour
             ProgramEnding()
         };
 
-    }
-
-    private void InitializeGestureTracker(StaticHandGesture gestureTracker, UnityAction gestureAction, string gestureName)
-    {
-        if (gestureTracker != null)
-        {
-            gestureTracker.gesturePerformed.AddListener(gestureAction);
-        }
-        else
-        {
-            Debug.LogError($"{gestureName} component not found on the assigned GameObject.");
-        }
     }
 
     // Update is called once per frame
@@ -226,16 +181,8 @@ public class SequenceScript : MonoBehaviour
         }
     }
 
-    private IEnumerator ExecuteSequentialSteps()
-    {
-        while (currentStepIndex < sequentialSteps.Count)
-        {
-            // Execute the current step
-            yield return StartCoroutine(sequentialSteps[currentStepIndex]);
-            currentStepIndex++;
-        }
-    }
-
+    //Called by experimenter dashboard button
+    //Shows the correct environments to the participants
     public void StartProgram_CorrectEnv()
     {
         String particpantNumString = ParticipantNumDropdown.options[ParticipantNumDropdown.value].text;
@@ -250,6 +197,8 @@ public class SequenceScript : MonoBehaviour
         StartCoroutine(ExecuteSequentialSteps());
     }
 
+    //Called by experimenter dashboard button
+    //Shows the incorrect environments to the participants
     public void StartProgram_IncorrectEnv()
     {
         String particpantNumString = ParticipantNumDropdown.options[ParticipantNumDropdown.value].text;
@@ -264,6 +213,7 @@ public class SequenceScript : MonoBehaviour
         StartCoroutine(ExecuteSequentialSteps());
     }
 
+    //Shows text to experimenter and debug that the program has started
     private IEnumerator ProgramStarting()
     {
         Debug.Log("Program Starting...");
@@ -272,6 +222,8 @@ public class SequenceScript : MonoBehaviour
         ProgramStartText.gameObject.SetActive(false);
     }
 
+    //Plays instructions to the participant
+    //Introduces hand gesture responses to the participant
     private IEnumerator Introduction()
     {
         StartVideo(introClip);
@@ -294,6 +246,7 @@ public class SequenceScript : MonoBehaviour
         currentGesture = ""; // Reset for the next iteration
     }
 
+    //Goes through all the stories
     private IEnumerator ShowStories()
     {
         // Random order for the first three
@@ -317,20 +270,8 @@ public class SequenceScript : MonoBehaviour
         yield return new WaitForSeconds(0f);
     }
 
-    // Shuffle the list using Fisher-Yates algorithm
-    private void ShuffleList(List<int> list)
-    {
-        int n = list.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = UnityEngine.Random.Range(0, n + 1);
-            int value = list[k];
-            list[k] = list[n];
-            list[n] = value;
-        }
-    }
-
+    //Called for each story
+    //Enables environment, starts video/audio, then when story is finished, waits for gesture to continue to next story
     private IEnumerator ShowStory(int iteration)
     {
         Debug.Log($"Showing Story Part {iteration + 1}...");
@@ -355,71 +296,8 @@ public class SequenceScript : MonoBehaviour
         yield return WaitForGesture(new List<string> { "ThumbsUp" });
     }
 
-    private IEnumerator MicStart()
-    {
-        Debug.Log("Mic Starting...");
-        functionCompleteText.text = "Mic Starting...";
-        micActiveText.text = "Mic On";
-        MicStatusText.gameObject.SetActive(true);
-        micRecorderObj.GetComponent<MicRecorder>().StartRecording();
-        yield return new WaitForSeconds(0.5f);
-        functionCompleteText.text = "ready";
-        yield return WaitForGesture(new List<string> { "ThumbsUp" });
-    }
-
-    private IEnumerator MicEnd(int iteration)
-    {
-        Debug.Log("Mic Ending...");
-        functionCompleteText.text = "Mic Ending...";
-        micActiveText.text = "Mic Off";
-        micRecorderObj.GetComponent<MicRecorder>().StopRecording(participantNum, iteration + 1);
-        MicStatusText.gameObject.SetActive(false);
-        yield return new WaitForSeconds(0.5f);
-    }
-
-    private IEnumerator ProgramEnding()
-    {
-        Debug.Log("Program Ending...");
-        functionCompleteText.text = "Program Ending...";
-        yield return new WaitForSeconds(2f); // Simulate some operation
-    }
-
-    void StartVideo(VideoClip videoClip)
-    {
-        // Stop current video
-        videoPlayer.Stop();
-        //Change to new video
-        videoPlayer.clip = videoClip;
-        //Play new video
-        videoPlayer.Play();
-    }
-
-    void PauseVideo()
-    {
-        //Pause current video
-        videoPlayer.Pause();
-    }
-
-    void ResumeVideo()
-    {
-        //Pause current video
-        videoPlayer.Play();
-    }
-
-    void ExpandFog()
-    {
-        fogNewScale = fogLargeScale;
-        fogElapsedTime = 0f;
-        updateFogScale = true;
-    }
-
-    void ShrinkFog()
-    {
-        fogNewScale = fogSmallScale;
-        fogElapsedTime = 0f;
-        updateFogScale = true;
-    }
-
+    //Disables all environments except the current story environment
+    //Uses fog to hide loading
     IEnumerator EnableEnvironment(int envNum)
     {
         int storyIndex = envNum >= 3 ? 3 : envNum;
@@ -476,6 +354,92 @@ public class SequenceScript : MonoBehaviour
         ExpandFog();
     }
 
+    //Shows text to participant and debug that the program has ended
+    private IEnumerator ProgramEnding()
+    {
+        Debug.Log("Program Ending...");
+        functionCompleteText.text = "Program Ending...";
+        yield return new WaitForSeconds(2f); // Simulate some operation
+    }
+
+    //Starts new story video/audio
+    void StartVideo(VideoClip videoClip)
+    {
+        // Stop current video
+        videoPlayer.Stop();
+        //Change to new video
+        videoPlayer.clip = videoClip;
+        //Play new video
+        videoPlayer.Play();
+    }
+
+    //Pause current video
+    void PauseVideo()
+    {
+        videoPlayer.Pause();
+    }
+
+    //Resume current video
+    void ResumeVideo()
+    {
+        videoPlayer.Play();
+    }
+
+    //Activates the mic to start recording the participant's retelling
+    private IEnumerator MicStart()
+    {
+        Debug.Log("Mic Starting...");
+        functionCompleteText.text = "Mic Starting...";
+        micActiveText.text = "Mic On";
+        MicStatusText.gameObject.SetActive(true);
+        micRecorderObj.GetComponent<MicRecorder>().StartRecording();
+        yield return new WaitForSeconds(0.5f);
+        functionCompleteText.text = "ready";
+        yield return WaitForGesture(new List<string> { "ThumbsUp" });
+    }
+
+    //Deactivates the mic to end recording the participant's retelling
+    private IEnumerator MicEnd(int iteration)
+    {
+        Debug.Log("Mic Ending...");
+        functionCompleteText.text = "Mic Ending...";
+        micActiveText.text = "Mic Off";
+        micRecorderObj.GetComponent<MicRecorder>().StopRecording(participantNum, Math.Min(iteration + 1, 3), storyType[iteration]);
+        MicStatusText.gameObject.SetActive(false);
+        yield return new WaitForSeconds(0.5f);
+    }
+
+    //Exapnds the fog to reveal story environment
+    void ExpandFog()
+    {
+        fogNewScale = fogLargeScale;
+        fogElapsedTime = 0f;
+        updateFogScale = true;
+    }
+
+    //Shrinks the fog to hide story environment
+    void ShrinkFog()
+    {
+        fogNewScale = fogSmallScale;
+        fogElapsedTime = 0f;
+        updateFogScale = true;
+    }
+
+    //Initializes the gesture tracker by adding the given action as a listener
+    //If failed, logs error in debug
+    private void InitializeGestureTracker(StaticHandGesture gestureTracker, UnityAction gestureAction, string gestureName)
+    {
+        if (gestureTracker != null)
+        {
+            gestureTracker.gesturePerformed.AddListener(gestureAction);
+        }
+        else
+        {
+            Debug.LogError($"{gestureName} component not found on the assigned GameObject.");
+        }
+    }
+
+    //Does nothing until specific gesture is called
     private IEnumerator WaitForGesture(List<string> validGestures)
     {
         currentGesture = ""; // Reset gesture
@@ -486,32 +450,57 @@ public class SequenceScript : MonoBehaviour
         }
     }
 
-    private void HandleGestureResponse()
-    {
-        switch (currentGesture)
-        {
-            case "ThumbsUp":
-                Debug.Log("Thumbs Up received.");
-                break;
-            case "ThumbsDown":
-                Debug.Log("Thumbs Down received.");
-                break;
-            default:
-                Debug.Log("Unknown gesture.");
-                break;
-        }
-        currentGesture = ""; // Reset for the next gesture
-    }
-
-    // Gesture detection methods
+    // Thumbs up gesture detection
     public void OnThumbsUpPerformed()
     {
         currentGesture = "ThumbsUp"; // Set the current gesture to Thumbs Up
     }
 
+    // Thumbs down gesture detection
     public void OnThumbsDownPerformed()
     {
         currentGesture = "ThumbsDown"; // Set the current gesture to Thumbs Down
+    }
+
+    // private void HandleGestureResponse()
+    // {
+    //     switch (currentGesture)
+    //     {
+    //         case "ThumbsUp":
+    //             Debug.Log("Thumbs Up received.");
+    //             break;
+    //         case "ThumbsDown":
+    //             Debug.Log("Thumbs Down received.");
+    //             break;
+    //         default:
+    //             Debug.Log("Unknown gesture.");
+    //             break;
+    //     }
+    //     currentGesture = ""; // Reset for the next gesture
+    // }
+
+    // Shuffle the list using Fisher-Yates algorithm
+    private void ShuffleList(List<int> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = UnityEngine.Random.Range(0, n + 1);
+            int value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
+    }
+
+    private IEnumerator ExecuteSequentialSteps()
+    {
+        while (currentStepIndex < sequentialSteps.Count)
+        {
+            // Execute the current step
+            yield return StartCoroutine(sequentialSteps[currentStepIndex]);
+            currentStepIndex++;
+        }
     }
 
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
@@ -34,21 +35,6 @@ public class MicRecorder : MonoBehaviour
         }
     }
 
-    // Handle button click
-    // public void OnButtonClick()
-    // {
-    //     if (_isRecording)
-    //     {
-    //         StopRecording();
-    //         buttonText.text = "Start Recording";
-    //     }
-    //     else
-    //     {
-    //         StartRecording();
-    //         buttonText.text = "Stop Recording";
-    //     }
-    // }
-
     // Start recording
     public void StartRecording()
     {
@@ -66,7 +52,7 @@ public class MicRecorder : MonoBehaviour
     }
 
     // Stop recording and save
-    public void StopRecording(int participantNum, int storynum)
+    public void StopRecording(int participantNum, int storynum, int storyType)
     {
         if (_isRecording)
         {
@@ -83,7 +69,9 @@ public class MicRecorder : MonoBehaviour
             {
                 Directory.CreateDirectory(participantFolder);
             }
-            SaveWavToSpecificFolder(trimmedClip, $"p{participantNum}-story{storynum}.wav", participantFolder);
+            //storytype : 0 - audio, 1 - visual, 2 = audiovisual
+            String modality = storyType == 0 ? "audio" : storyType == 1 ? "video" : storyType == 2 ? "audiovisual" : "Unknown Type";
+            SaveWavToSpecificFolder(trimmedClip, $"p{participantNum}_story{storynum}_{modality}.wav", participantFolder);
             _isRecording = false;
 
             Debug.Log("Recording stopped and saved.");
