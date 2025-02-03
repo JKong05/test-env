@@ -8,26 +8,26 @@ using TMPro;
 using System.Drawing;
 using System;
 using Unity.VisualScripting;
+using UnityEngine.Events;
 
 
 public class SequenceScript : MonoBehaviour
 {
-    // To keep track of the current function
+    //Keeps track of current function
     private List<IEnumerator> sequentialSteps;
     private int currentStepIndex = 0;
     private int participantNum = 0;
 
-    //public variables (able to access within Unity editor)
     [Header("Video")]
     public VideoPlayer videoPlayer;
     public Material videoMaterial;
     public VideoClip introClip;
     public List<VideoClip> videoClips;
-    private bool isVideoPlaying = false;
 
     [Header("Audio")]
     public AudioSource soundPlayer;
     public List<AudioClip> audioClips;
+
     [Header("Mic")]
     public MicRecorder micRecorderObj;
 
@@ -46,7 +46,6 @@ public class SequenceScript : MonoBehaviour
     [Header("Environment")]
     public bool correct_environment;
     public GameObject startEnvironment;
-
     public List<GameObject> environments;
     public List<GameObject> environments_wrong;
 
@@ -63,7 +62,7 @@ public class SequenceScript : MonoBehaviour
 
     [Header("HUD Elements")]
     public GameObject ProgramSetupCanvas;
-    public TMP_Dropdown  ParticipantNumDropdown;
+    public TMP_Dropdown ParticipantNumDropdown;
     public TextMeshProUGUI ProgramStartText;
     public TextMeshProUGUI MicStatusText;
     public TextMeshProUGUI StoryModalityText;
@@ -76,32 +75,30 @@ public class SequenceScript : MonoBehaviour
     public TextMeshProUGUI functionCompleteText;
     public TextMeshProUGUI micActiveText;
     public TextMeshProUGUI storyTypeText;
-    //0 = audio
-    //1 = visual
-    //2 = audiovisual
-    public List<int> storyType = new List<int> { 0, 1, 2, 0, 1, 2 };
+    public List<int> storyType = new List<int> { 0, 1, 2, 0, 1, 2 }; //storytype : 0 - audio, 1 - visual, 2 = audiovisual
     public List<String> storyTitles;
 
     // Start is called before the first frame update
     void Start()
     {
-        //Ensuring videoMaterial is assigned to videoObject
+        //Ensure videoMaterial is assigned to videoObject
         if (videoMaterial != null && videoPlayer != null)
         {
             videoPlayer.GetComponent<Renderer>().material = videoMaterial;
         }
 
+        //Connect all fog children to fog parent
         foreach (Transform child in fogParent.transform)
         {
             childTransforms.Add(child);
             fogChildOriginalSizes.Add(child.localScale.x);
         }
-
-        // Set the initial radius
+        //Set the initial radius of fog
         fogParent.transform.localScale = fogLargeScale;
 
+        //Show starting environment
         startEnvironment.SetActive(true);
-
+        //Hide all story environments
         for (int i = 0; i < environments.Count; i++)
         {
             environments[i].SetActive(false);
@@ -111,49 +108,51 @@ public class SequenceScript : MonoBehaviour
             environments_wrong[i].SetActive(false);
         }
 
-        //reset videplayer
+        //Reset videplayer
         videoPlayer.targetTexture.Release();
 
-        //setting gesture detectors
+        //Assign gesture detectors
         thumbsUpGestureTracker = rightThumbsUpDetector.GetComponent<StaticHandGesture>();
         thumbsDownGestureTracker = rightThumbsDownDetector.GetComponent<StaticHandGesture>();
         thumbsUpGestureTracker2 = leftThumbsUpDetector.GetComponent<StaticHandGesture>();
         thumbsDownGestureTracker2 = leftThumbsDownDetector.GetComponent<StaticHandGesture>();
+        InitializeGestureTracker(thumbsUpGestureTracker, OnThumbsUpPerformed, "Thumbs Up");
+        InitializeGestureTracker(thumbsDownGestureTracker, OnThumbsDownPerformed, "Thumbs Down");
+        InitializeGestureTracker(thumbsUpGestureTracker2, OnThumbsUpPerformed, "Thumbs Up 2");
+        InitializeGestureTracker(thumbsDownGestureTracker2, OnThumbsDownPerformed, "Thumbs Down 2");
+        // if (thumbsUpGestureTracker != null)
+        // {
+        //     thumbsUpGestureTracker.gesturePerformed.AddListener(OnThumbsUpPerformed);
+        // }
+        // else
+        // {
+        //     Debug.LogError("Thumbs Up GestureTracker component not found on the assigned GameObject.");
+        // }
 
-        if (thumbsUpGestureTracker != null)
-        {
-            thumbsUpGestureTracker.gesturePerformed.AddListener(OnThumbsUpPerformed);
-        }
-        else
-        {
-            Debug.LogError("Thumbs Up GestureTracker component not found on the assigned GameObject.");
-        }
-
-        if (thumbsDownGestureTracker != null)
-        {
-            thumbsDownGestureTracker.gesturePerformed.AddListener(OnThumbsDownPerformed);
-        }
-        else
-        {
-            Debug.LogError("Thumbs Down GestureTracker component not found on the assigned GameObject.");
-        }
-        if (thumbsUpGestureTracker2 != null)
-        {
-            thumbsUpGestureTracker2.gesturePerformed.AddListener(OnThumbsUpPerformed);
-        }
-        else
-        {
-            Debug.LogError("Thumbs Up GestureTracker 2 component not found on the assigned GameObject.");
-        }
-
-        if (thumbsDownGestureTracker2 != null)
-        {
-            thumbsDownGestureTracker2.gesturePerformed.AddListener(OnThumbsDownPerformed);
-        }
-        else
-        {
-            Debug.LogError("Thumbs Down GestureTracker 2 component not found on the assigned GameObject.");
-        }
+        // if (thumbsDownGestureTracker != null)
+        // {
+        //     thumbsDownGestureTracker.gesturePerformed.AddListener(OnThumbsDownPerformed);
+        // }
+        // else
+        // {
+        //     Debug.LogError("Thumbs Down GestureTracker component not found on the assigned GameObject.");
+        // }
+        // if (thumbsUpGestureTracker2 != null)
+        // {
+        //     thumbsUpGestureTracker2.gesturePerformed.AddListener(OnThumbsUpPerformed);
+        // }
+        // else
+        // {
+        //     Debug.LogError("Thumbs Up GestureTracker 2 component not found on the assigned GameObject.");
+        // }
+        // if (thumbsDownGestureTracker2 != null)
+        // {
+        //     thumbsDownGestureTracker2.gesturePerformed.AddListener(OnThumbsDownPerformed);
+        // }
+        // else
+        // {
+        //     Debug.LogError("Thumbs Down GestureTracker 2 component not found on the assigned GameObject.");
+        // }
 
         // Initialize the steps to execute
         sequentialSteps = new List<IEnumerator>
@@ -164,6 +163,18 @@ public class SequenceScript : MonoBehaviour
             ProgramEnding()
         };
 
+    }
+
+    private void InitializeGestureTracker(StaticHandGesture gestureTracker, UnityAction gestureAction, string gestureName)
+    {
+        if (gestureTracker != null)
+        {
+            gestureTracker.gesturePerformed.AddListener(gestureAction);
+        }
+        else
+        {
+            Debug.LogError($"{gestureName} component not found on the assigned GameObject.");
+        }
     }
 
     // Update is called once per frame
@@ -393,33 +404,6 @@ public class SequenceScript : MonoBehaviour
     {
         //Pause current video
         videoPlayer.Play();
-    }
-
-    void StartAudio(int index)
-    {
-        if (index >= 0 && index < audioClips.Count)
-        {
-            // Stop current audio
-            soundPlayer.Stop();
-            // Change to new audio clip
-            soundPlayer.clip = audioClips[index];
-            // Play new audio clip
-            soundPlayer.Play();
-        }
-        else
-        {
-            Debug.LogWarning("Invalid audio index.");
-        }
-    }
-
-    void playThisAudio()
-    {
-        soundPlayer.Play();
-    }
-
-    void pauseThisAudio()
-    {
-        soundPlayer.Pause();
     }
 
     void ExpandFog()
