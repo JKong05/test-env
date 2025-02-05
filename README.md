@@ -76,10 +76,10 @@ adb install /path/to/app.apk
 ## Dependencies
 - **Unity XR Interaction Toolkit**  
   Unity Technologies. GitHub repository.  
-  [https://github.com/Unity-Technologies/XR-Interaction-Toolkit](https://github.com/Unity-Technologies/XR-Interaction-Toolkit)
+  [https://github.com/Unity-Technologies/XR-Interaction-Toolkit](https://github.com/needle-mirror/com.unity.xr.hands)
 
 - **Unity XR Hands**  
   Unity Technologies. GitHub repository.  
-  [https://github.com/needle-mirror/com.unity.xr.hands](https://github.com/needle-mirror/com.unity.xr.hands)
+  [https://github.com/needle-mirror/com.unity.xr.hands](https://github.com/needle-mirror/com.unity.xr.interaction.toolkit)
 
 ## External Resources
