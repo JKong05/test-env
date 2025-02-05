@@ -10,7 +10,7 @@ The study investigates the ability of LLMs to replicate human retellings. Each r
 ## Features
 
 
-## Folder Structure
+## Repository Structure
 ```
 ├── .vscode
 ├── Assets
@@ -73,4 +73,13 @@ adb install /path/to/app.apk
 ```
 6. In Quest, navigate to Libary -> Unknown Sources and open the app
 
-## Assets Used
+## Dependencies
+- **Unity XR Interaction Toolkit**  
+  Unity Technologies. GitHub repository.  
+  [https://github.com/Unity-Technologies/XR-Interaction-Toolkit](https://github.com/Unity-Technologies/XR-Interaction-Toolkit)
+
+- **Unity XR Hands**  
+  Unity Technologies. GitHub repository.  
+  [https://github.com/needle-mirror/com.unity.xr.hands](https://github.com/needle-mirror/com.unity.xr.hands)
+
+## External Resources
