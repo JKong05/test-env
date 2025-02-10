@@ -17,6 +17,9 @@ public class SequenceScript : MonoBehaviour
     private List<IEnumerator> sequentialSteps;
     private int currentStepIndex = 0;
     private int participantNum = 0;
+    [Header("External Scripts")]
+    //Other scripts called
+    public GameObject scriptHolderObj;
 
     [Header("Video")]
     public VideoPlayer videoPlayer;
@@ -27,9 +30,6 @@ public class SequenceScript : MonoBehaviour
     [Header("Audio")]
     public AudioSource soundPlayer;
     public List<AudioClip> audioClips;
-
-    [Header("Mic")]
-    public MicRecorder micRecorderObj;
 
     [Header("Fog")]
     public GameObject fogParent;
@@ -44,6 +44,7 @@ public class SequenceScript : MonoBehaviour
     public float fogChildScaleFactor;
 
     [Header("Environment")]
+    private int envType = 1;
     public bool correct_environment;
     public GameObject startEnvironment;
     public List<GameObject> environments;
@@ -67,6 +68,10 @@ public class SequenceScript : MonoBehaviour
     public TextMeshProUGUI MicStatusText;
     public TextMeshProUGUI StoryModalityText;
     public TextMeshProUGUI storyDoneText;
+    public GameObject SelectParticipantNumScreen;
+    public GameObject participantNumScrollContent;
+    public GameObject SelectStoryScreen;
+    public GameObject StoryScrollContent;
 
     [Header("Testing Variables")]
 
@@ -81,6 +86,8 @@ public class SequenceScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        scriptHolderObj.GetComponent<ScrollViewScript>().PopulateParticipantScrollView();
+
         //Ensure videoMaterial is assigned to videoObject
         if (videoMaterial != null && videoPlayer != null)
         {
@@ -181,6 +188,14 @@ public class SequenceScript : MonoBehaviour
         }
     }
 
+    public void setParticipantNum()
+    {
+        participantNum = participantNumScrollContent.GetComponent<SnapToGridScript>().getNum();
+        SelectParticipantNumScreen.gameObject.SetActive(false);
+        SelectStoryScreen.gameObject.SetActive(true);
+        Debug.Log("Participant #: " + participantNum);
+    }
+
     //Called by experimenter dashboard button
     //Shows the correct environments to the participants
     public void StartProgram_CorrectEnv()
@@ -213,9 +228,112 @@ public class SequenceScript : MonoBehaviour
         StartCoroutine(ExecuteSequentialSteps());
     }
 
+    public void SetEnvType(int eType)
+    {
+        envType = eType;
+    }
+
+    public void SetSequence()
+    {
+        int i = StoryScrollContent.GetComponent<SnapToGridScript>().getNum();
+        SelectStoryScreen.gameObject.SetActive(false);
+        StartCoroutine(StartProgram(i));
+    }
+
+    public IEnumerator StartProgram(int i)
+    {
+        if (envType == 0)
+        {
+            correct_environment = false;
+        }
+        else if (envType == 1)
+        {
+            correct_environment = true;
+        }
+        else if (envType == 2)
+        {
+            correct_environment = UnityEngine.Random.value > 0.5f ? true : false;
+        }
+        switch (i)
+        {
+            case 1:
+                {
+                    String particpantNumString = ParticipantNumDropdown.options[ParticipantNumDropdown.value].text;
+                    if (!string.IsNullOrEmpty(particpantNumString) && int.TryParse(particpantNumString, out int result))
+                    {
+                        participantNum = Int32.Parse(particpantNumString);
+                    }
+                    ProgramSetupCanvas.gameObject.SetActive(false);
+                    ProgramStartText.gameObject.SetActive(true);
+                    // Start the sequential process
+                    StartCoroutine(ExecuteSequentialSteps());
+                    break;
+                }
+            case 2:
+                {
+                    ShowStory(UnityEngine.Random.Range(0, 7));
+                    break;
+                }
+            case 3:
+                {
+                    yield return StartCoroutine(ShowStory(0));
+                    storyDoneText.gameObject.SetActive(false);
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(MicEnd(0));
+                    break;
+                }
+            case 4:
+                {
+                    yield return StartCoroutine(ShowStory(1));
+                    storyDoneText.gameObject.SetActive(false);
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(MicEnd(1));
+                    break;
+                }
+            case 5:
+                {
+                    yield return StartCoroutine(ShowStory(2));
+                    storyDoneText.gameObject.SetActive(false);
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(MicEnd(2));
+                    break;
+                }
+            case 6:
+                {
+                    yield return StartCoroutine(ShowStory(3));
+                    storyDoneText.gameObject.SetActive(false);
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(MicEnd(3));
+                    break;
+                }
+            case 7:
+                {
+                    yield return StartCoroutine(ShowStory(4));
+                    storyDoneText.gameObject.SetActive(false);
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(MicEnd(4));
+                    break;
+                }
+            case 8:
+                {
+                    yield return StartCoroutine(ShowStory(5));
+                    storyDoneText.gameObject.SetActive(false);
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(MicEnd(5));
+                    break;
+                }
+            default:
+                {
+                    Debug.Log("Default case");
+                    break;
+                }
+        }
+    }
+
     //Shows text to experimenter and debug that the program has started
     private IEnumerator ProgramStarting()
     {
+        videoPlayer.GetComponent<Renderer>().enabled = true;
         Debug.Log("Program Starting...");
         functionCompleteText.text = "ready";
         yield return WaitForGesture(new List<string> { "ThumbsUp" });
@@ -392,7 +510,7 @@ public class SequenceScript : MonoBehaviour
         functionCompleteText.text = "Mic Starting...";
         micActiveText.text = "Mic On";
         MicStatusText.gameObject.SetActive(true);
-        micRecorderObj.GetComponent<MicRecorder>().StartRecording();
+        scriptHolderObj.GetComponent<MicRecorder>().StartRecording();
         yield return new WaitForSeconds(0.5f);
         functionCompleteText.text = "ready";
         yield return WaitForGesture(new List<string> { "ThumbsUp" });
@@ -404,7 +522,7 @@ public class SequenceScript : MonoBehaviour
         Debug.Log("Mic Ending...");
         functionCompleteText.text = "Mic Ending...";
         micActiveText.text = "Mic Off";
-        micRecorderObj.GetComponent<MicRecorder>().StopRecording(participantNum, Math.Min(iteration + 1, 3), storyType[iteration]);
+        scriptHolderObj.GetComponent<MicRecorder>().StopRecording(participantNum, Math.Min(iteration + 1, 3), storyType[iteration]);
         MicStatusText.gameObject.SetActive(false);
         yield return new WaitForSeconds(0.5f);
     }
