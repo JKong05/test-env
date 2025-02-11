@@ -55,7 +55,7 @@ public class SnapToGridScript : MonoBehaviour
         // Get the current horizontal position.
         float currentX = rectTransform.anchoredPosition.x;
         // Compute the nearest snap targeFt (rounded to the nearest multiple of itemWidth).
-        float targetX = (Mathf.Round(currentX / itemWidth) * itemWidth) + itemWidthOffset;
+        float targetX = Mathf.Round(currentX / itemWidth) * itemWidth;
         targetX = Mathf.Clamp(targetX, (-totalItems + customMaxTarget) * itemWidth + itemWidthOffset, customMinTarget * itemWidth + itemWidthOffset);
         Debug.Log(Mathf.Clamp(Mathf.Abs(Mathf.CeilToInt((rectTransform.anchoredPosition.x - itemWidthOffset - 20) / itemWidth)) + customMinNum, 1, totalItems ));
         float snapDiff = targetX - currentX;

@@ -5,10 +5,9 @@ using UnityEngine.Video;
 using System.Collections;
 using UnityEngine.XR.Hands.Samples.GestureSample;
 using TMPro;
-using System.Drawing;
 using System;
-using Unity.VisualScripting;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 
 public class SequenceScript : MonoBehaviour
@@ -72,6 +71,8 @@ public class SequenceScript : MonoBehaviour
     public GameObject participantNumScrollContent;
     public GameObject SelectStoryScreen;
     public GameObject StoryScrollContent;
+    public List<Button> StoryEnvButtons;
+    private UnityEngine.Color[] StoryEnvButtonColors = { new Color32(255, 153, 153, 255), new Color32(153, 255, 153, 255), new Color32(153, 204, 255, 255)};
 
     [Header("Testing Variables")]
 
@@ -231,6 +232,10 @@ public class SequenceScript : MonoBehaviour
     public void SetEnvType(int eType)
     {
         envType = eType;
+        for (int i = 0; i < StoryEnvButtons.Count; i++)
+        {
+            StoryEnvButtons[i].GetComponent<UnityEngine.UI.Image>().color = (i == envType) ? StoryEnvButtonColors[envType] : UnityEngine.Color.white;
+        }
     }
 
     public void SetSequence()

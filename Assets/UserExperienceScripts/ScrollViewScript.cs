@@ -16,7 +16,7 @@ public class ScrollViewScript : MonoBehaviour
 
     public void PopulateParticipantScrollView()
     {
-        for (int i = 1; i <= 5; i++)
+        for (int i = 1; i <= 4; i++)
         {
             //Create new text UI element and place it in scroll view's content
             GameObject newTextObject = Instantiate(participantNumPrefab, participantContentPanel);
