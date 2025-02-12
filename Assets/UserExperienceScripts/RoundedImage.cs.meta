@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 1e2b165e49528d949a23d6c82b387948
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - roundedButtonMaterial: {fileID: 2100000, guid: e7e676bc6b6f7b64da5695cc8a7cc539, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
