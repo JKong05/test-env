@@ -8,6 +8,7 @@ using TMPro;
 using System;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class SequenceScript : MonoBehaviour
@@ -28,7 +29,6 @@ public class SequenceScript : MonoBehaviour
 
     [Header("Audio")]
     public AudioSource soundPlayer;
-    public List<AudioClip> audioClips;
 
     [Header("Fog")]
     public GameObject fogParent;
@@ -72,7 +72,7 @@ public class SequenceScript : MonoBehaviour
     public GameObject SelectStoryScreen;
     public GameObject StoryScrollContent;
     public List<Button> StoryEnvButtons;
-    private UnityEngine.Color[] StoryEnvButtonColors = { new Color32(255, 153, 153, 255), new Color32(153, 255, 153, 255), new Color32(153, 204, 255, 255)};
+    private UnityEngine.Color[] StoryEnvButtonColors = { new Color32(255, 153, 153, 255), new Color32(153, 255, 153, 255), new Color32(153, 204, 255, 255) };
 
     [Header("Testing Variables")]
 
@@ -276,55 +276,101 @@ public class SequenceScript : MonoBehaviour
                 }
             case 2:
                 {
-                    ShowStory(UnityEngine.Random.Range(0, 7));
+                    int randomSingleStoryNum = UnityEngine.Random.Range(0, 7);
+                    storyDoneText.text = "Do a thumbs up to begin";
+                    storyDoneText.gameObject.SetActive(true);
+                    yield return WaitForGesture(new List<string> { "ThumbsUp" });
+                    storyDoneText.gameObject.SetActive(false);
+                    storyDoneText.text = "The End";
+                    yield return StartCoroutine(ShowStory(randomSingleStoryNum));
+                    storyDoneText.gameObject.SetActive(false);
+                    yield return StartCoroutine(MicStart());
+                    yield return StartCoroutine(MicEnd(randomSingleStoryNum));
+                    yield return ProgramEnding();
                     break;
                 }
             case 3:
                 {
+                    storyDoneText.text = "Do a thumbs up to begin";
+                    storyDoneText.gameObject.SetActive(true);
+                    yield return WaitForGesture(new List<string> { "ThumbsUp" });
+                    storyDoneText.gameObject.SetActive(false);
+                    storyDoneText.text = "The End";
                     yield return StartCoroutine(ShowStory(0));
                     storyDoneText.gameObject.SetActive(false);
                     yield return StartCoroutine(MicStart());
                     yield return StartCoroutine(MicEnd(0));
+                    yield return ProgramEnding();
                     break;
                 }
             case 4:
                 {
+                    storyDoneText.text = "Do a thumbs up to begin";
+                    storyDoneText.gameObject.SetActive(true);
+                    yield return WaitForGesture(new List<string> { "ThumbsUp" });
+                    storyDoneText.gameObject.SetActive(false);
+                    storyDoneText.text = "The End";
                     yield return StartCoroutine(ShowStory(1));
                     storyDoneText.gameObject.SetActive(false);
                     yield return StartCoroutine(MicStart());
                     yield return StartCoroutine(MicEnd(1));
+                    yield return ProgramEnding();
                     break;
                 }
             case 5:
                 {
+                    storyDoneText.text = "Do a thumbs up to begin";
+                    storyDoneText.gameObject.SetActive(true);
+                    yield return WaitForGesture(new List<string> { "ThumbsUp" });
+                    storyDoneText.gameObject.SetActive(false);
+                    storyDoneText.text = "The End";
                     yield return StartCoroutine(ShowStory(2));
                     storyDoneText.gameObject.SetActive(false);
                     yield return StartCoroutine(MicStart());
                     yield return StartCoroutine(MicEnd(2));
+                    yield return ProgramEnding();
                     break;
                 }
             case 6:
                 {
+                    storyDoneText.text = "Do a thumbs up to begin";
+                    storyDoneText.gameObject.SetActive(true);
+                    yield return WaitForGesture(new List<string> { "ThumbsUp" });
+                    storyDoneText.gameObject.SetActive(false);
+                    storyDoneText.text = "The End";
                     yield return StartCoroutine(ShowStory(3));
                     storyDoneText.gameObject.SetActive(false);
                     yield return StartCoroutine(MicStart());
                     yield return StartCoroutine(MicEnd(3));
+                    yield return ProgramEnding();
                     break;
                 }
             case 7:
                 {
+                    storyDoneText.text = "Do a thumbs up to begin";
+                    storyDoneText.gameObject.SetActive(true);
+                    yield return WaitForGesture(new List<string> { "ThumbsUp" });
+                    storyDoneText.gameObject.SetActive(false);
+                    storyDoneText.text = "The End";
                     yield return StartCoroutine(ShowStory(4));
                     storyDoneText.gameObject.SetActive(false);
                     yield return StartCoroutine(MicStart());
                     yield return StartCoroutine(MicEnd(4));
+                    yield return ProgramEnding();
                     break;
                 }
             case 8:
                 {
+                    storyDoneText.text = "Do a thumbs up to begin";
+                    storyDoneText.gameObject.SetActive(true);
+                    yield return WaitForGesture(new List<string> { "ThumbsUp" });
+                    storyDoneText.gameObject.SetActive(false);
+                    storyDoneText.text = "The End";
                     yield return StartCoroutine(ShowStory(5));
                     storyDoneText.gameObject.SetActive(false);
                     yield return StartCoroutine(MicStart());
                     yield return StartCoroutine(MicEnd(5));
+                    yield return ProgramEnding();
                     break;
                 }
             default:
@@ -481,8 +527,11 @@ public class SequenceScript : MonoBehaviour
     private IEnumerator ProgramEnding()
     {
         Debug.Log("Program Ending...");
-        functionCompleteText.text = "Program Ending...";
+        storyDoneText.text = "This concludes the study.\nThank you for your time and participation!";
+        storyDoneText.gameObject.SetActive(true);
         yield return new WaitForSeconds(2f); // Simulate some operation
+        yield return WaitForGesture(new List<string> { "ThumbsUp" });
+        RefreshScene();
     }
 
     //Starts new story video/audio
@@ -527,7 +576,7 @@ public class SequenceScript : MonoBehaviour
         Debug.Log("Mic Ending...");
         functionCompleteText.text = "Mic Ending...";
         micActiveText.text = "Mic Off";
-        scriptHolderObj.GetComponent<MicRecorder>().StopRecording(participantNum, Math.Min(iteration + 1, 3), storyType[iteration]);
+        scriptHolderObj.GetComponent<MicRecorder>().StopRecording(participantNum, Math.Min(iteration + 1, 3), storyType[iteration], correct_environment);
         MicStatusText.gameObject.SetActive(false);
         yield return new WaitForSeconds(0.5f);
     }
@@ -624,6 +673,16 @@ public class SequenceScript : MonoBehaviour
             yield return StartCoroutine(sequentialSteps[currentStepIndex]);
             currentStepIndex++;
         }
+    }
+
+    // Call this function to refresh the scene
+    public void RefreshScene()
+    {
+        // Get the active scene's name
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        // Reload the scene
+        SceneManager.LoadScene(sceneName);
     }
 
 

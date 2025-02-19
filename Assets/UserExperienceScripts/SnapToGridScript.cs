@@ -18,6 +18,7 @@ public class SnapToGridScript : MonoBehaviour
     public int customMinNum = 0;
     // The strength of the spring-like tug toward the nearest snap position.
     public float snapForce = 50f;
+    public float snapDiffMultiplier = 1f;
 
     [Header("Inertia Settings")]
     // A friction/deceleration multiplier (closer to 1 means slower decay).
@@ -74,7 +75,7 @@ public class SnapToGridScript : MonoBehaviour
         rectTransform.anchoredPosition = new Vector2(newX, rectTransform.anchoredPosition.y);
 
         // If the velocity and distance to the snap target are very small, snap exactly into place.
-        if (Mathf.Abs(velocity) < 10f && Mathf.Abs(snapDiff) < 1f)
+        if (Mathf.Abs(velocity) < (10f*snapDiffMultiplier) && Mathf.Abs(snapDiff) < (1f*snapDiffMultiplier))
         {
             rectTransform.anchoredPosition = new Vector2(targetX, rectTransform.anchoredPosition.y);
             velocity = 0f;

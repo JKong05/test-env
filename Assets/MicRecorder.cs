@@ -52,7 +52,7 @@ public class MicRecorder : MonoBehaviour
     }
 
     // Stop recording and save
-    public void StopRecording(int participantNum, int storynum, int storyType)
+    public void StopRecording(int participantNum, int storynum, int storyType, bool correct_environment)
     {
         if (_isRecording)
         {
@@ -70,8 +70,9 @@ public class MicRecorder : MonoBehaviour
                 Directory.CreateDirectory(participantFolder);
             }
             //storytype : 0 - audio, 1 - visual, 2 = audiovisual
-            String modality = storyType == 0 ? "audio" : storyType == 1 ? "video" : storyType == 2 ? "audiovisual" : "Unknown Type";
-            SaveWavToSpecificFolder(trimmedClip, $"p{participantNum}_story{storynum}_{modality}.wav", participantFolder);
+            String modality = storyType == 0 ? "audio" : storyType == 1 ? "video" : storyType == 2 ? "audiovisual" : "unknownModality";
+            string environment = correct_environment == false ? "incorrect" : correct_environment == true ? "correct" : "unknownEnvironment";
+            SaveWavToSpecificFolder(trimmedClip, $"p{participantNum}_story{storynum}_{modality}_{environment}.wav", participantFolder);
             _isRecording = false;
 
             Debug.Log("Recording stopped and saved.");
